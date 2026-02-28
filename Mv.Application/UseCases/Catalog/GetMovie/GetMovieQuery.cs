@@ -1,5 +1,8 @@
-﻿namespace Mv.Application.UseCases.Catalog.GetMovie;
+﻿using Mv.Application.Abstractions;
+using Mv.Application.DTOs;
 
-public class GetMovieQuery {
+namespace Mv.Application.UseCases.Catalog.GetMovie;
 
-}
+public record GetMovieQuery(Guid Id) : IQuery<GetMovieResult>;
+
+public record GetMovieResult(MovieDto Movie);

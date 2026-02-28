@@ -19,6 +19,13 @@ public class Movie : BaseEntity {
     return movie;
   }
 
+  public Movie Update(string name, int duration, string posterUrl) {
+    Name = name;
+    Duration = duration;
+    PosterUrl = posterUrl;
+    return this;
+  }
+
   public MovieSnapshot ToSnapshot() {
     return new MovieSnapshot(Id, Name, Duration, PosterUrl);
   }

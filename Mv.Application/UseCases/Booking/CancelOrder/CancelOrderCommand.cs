@@ -1,3 +1,5 @@
-﻿namespace Mv.Application.UseCases.Booking.CancelOrder;
+﻿using Mv.Application.Abstractions;
 
-public record CancelOrderCommand {}
+namespace Mv.Application.UseCases.Booking.CancelOrder;
+
+public record CancelOrderCommand(Guid OrderId) : ICommand<bool>;

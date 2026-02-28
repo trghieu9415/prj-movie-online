@@ -1,5 +1,5 @@
-﻿namespace Mv.Application.UseCases.Catalog.UpdateMovie;
+﻿using Mv.Application.Abstractions;
 
-public class UpdateMovieCommand {
-  
-}
+namespace Mv.Application.UseCases.Catalog.UpdateMovie;
+
+public record UpdateMovieCommand(Guid MovieId, string Name, int Duration, string PosterUrl) : ICommand<bool>;

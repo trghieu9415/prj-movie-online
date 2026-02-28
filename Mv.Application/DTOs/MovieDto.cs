@@ -1,3 +1,3 @@
 ﻿namespace Mv.Application.DTOs;
 
-public class MovieDto {}
+public record MovieDto(Guid Id, string Name, int Duration, string PosterUrl);

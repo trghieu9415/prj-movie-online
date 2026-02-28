@@ -1,3 +1,3 @@
 ﻿namespace Mv.Application.DTOs;
 
-public class AuditoriumDto {}
+public record AuditoriumDto(Guid Id, string Name, List<SeatDto> Seats);

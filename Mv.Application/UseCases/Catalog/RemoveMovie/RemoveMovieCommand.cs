@@ -1,5 +1,5 @@
-﻿namespace Mv.Application.UseCases.Catalog.RemoveMovie;
+﻿using Mv.Application.Abstractions;
 
-public class RemoveMovieCommand {
-  
-}
+namespace Mv.Application.UseCases.Catalog.RemoveMovie;
+
+public record RemoveMovieCommand(Guid Id) : ICommand<bool>;

@@ -1,3 +1,11 @@
-﻿namespace Mv.Application.Mappers;
+﻿using AutoMapper;
+using Domain.Entities;
+using Mv.Application.DTOs;
 
-public class CatalogProfile {}
+namespace Mv.Application.Mappers;
+
+public class CatalogProfile : Profile {
+  public CatalogProfile() {
+    CreateMap<Movie, MovieDto>();
+  }
+}

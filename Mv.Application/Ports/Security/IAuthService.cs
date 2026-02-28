@@ -3,8 +3,7 @@
 namespace Mv.Application.Ports.Security;
 
 public interface IAuthService {
-  Task<AuthTokens> LoginUserAsync(string email, string password, CancellationToken ct);
-  Task<AuthTokens> LoginAdminAsync(string email, string password, CancellationToken ct);
+  Task<AuthTokens> LoginAsync(string email, string password, UserRole role, CancellationToken ct);
   Task<AuthTokens> RegisterAsync(User user, string password, CancellationToken ct);
   Task<AuthTokens> RefreshAsync(string refreshToken, CancellationToken ct);
   Task LogoutAsync(string refreshToken, bool revokeAll, CancellationToken ct);

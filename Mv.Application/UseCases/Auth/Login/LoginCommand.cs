@@ -1,10 +1,11 @@
 ﻿using FluentValidation;
+using MediatR;
 using Mv.Application.Abstractions;
 using Mv.Application.Models;
 
 namespace Mv.Application.UseCases.Auth.Login;
 
-public record LoginCommand(string Email, string Password) : ICommand<LoginResult>;
+public record LoginCommand(string Email, string Password, UserRole Role) : ICommand<LoginResult>, IRequest;
 
 public class LoginValidator : AbstractValidator<LoginCommand> {
   public LoginValidator() {

@@ -1,3 +1,3 @@
 ﻿namespace Mv.Application.DTOs;
 
-public class SeatDto {}
+public record SeatDto(Guid Id, char Row, int Number);
