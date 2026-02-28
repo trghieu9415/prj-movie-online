@@ -1,3 +1,25 @@
-﻿namespace Domain.Entities;
+﻿using Domain.Base;
+using Domain.ValueObjects;
 
-public class Movie {}
+namespace Domain.Entities;
+
+public class Movie : BaseEntity {
+  private Movie() {}
+
+  public string Name { get; private set; } = null!;
+  public int Duration { get; private set; }
+  public string PosterUrl { get; private set; } = null!;
+
+  public static Movie Create(string name, int duration, string posterUrl) {
+    var movie = new Movie {
+      Name = name,
+      Duration = duration,
+      PosterUrl = posterUrl
+    };
+    return movie;
+  }
+
+  public MovieSnapshot ToSnapshot() {
+    return new MovieSnapshot(Id, Name, Duration, PosterUrl);
+  }
+}

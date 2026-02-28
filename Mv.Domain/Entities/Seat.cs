@@ -1,4 +1,5 @@
 ﻿using Domain.Base;
+using Domain.ValueObjects;
 
 namespace Domain.Entities;
 
@@ -24,9 +25,7 @@ public class Seat : BaseEntity {
     return seat;
   }
 
-  public Seat Update(char row, int number) {
-    Row = row;
-    Number = number;
-    return this;
+  public SeatSnapshot ToSnapshot() {
+    return new SeatSnapshot(Id, Row, Number);
   }
 }

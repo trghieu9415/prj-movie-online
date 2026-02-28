@@ -1,3 +1,6 @@
 ﻿namespace Mv.Application.Ports.Storage;
 
-public interface IBinaryStorage {}
+public interface IBinaryStorage {
+  Task<string> UploadAsync(string fileName, Stream content, string folder, string ext, CancellationToken ct = default);
+  Task DeleteAsync(string fileName, string folder, CancellationToken ct = default);
+}

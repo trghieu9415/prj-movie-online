@@ -1,5 +1,5 @@
 ﻿using Domain.Base;
-using Domain.Exception;
+using Domain.Exceptions;
 
 namespace Domain.Entities;
 

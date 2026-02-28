@@ -1,3 +1,5 @@
 ﻿namespace Mv.Application.UseCases.Booking.PlaceOrder;
 
-public class PlaceOrderHandler {}
+public class PlaceOrderHandler {
+  
+}

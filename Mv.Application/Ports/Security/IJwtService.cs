@@ -1,3 +1,8 @@
-﻿namespace Mv.Application.Ports.Security;
+﻿using Mv.Application.Models;
 
-public interface IJwtService {}
+namespace Mv.Application.Ports.Security;
+
+public interface IJwtService {
+  TokenModel GenerateAccessToken(User user);
+  TokenModel GenerateRefreshToken(User user);
+}
