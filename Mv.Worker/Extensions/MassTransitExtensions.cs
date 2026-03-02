@@ -1,9 +1,8 @@
-﻿using L3.Worker;
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
-using Mv.Application.Ports.Notification;
+using Mv.Application.Ports.Messaging;
 using Mv.Infrastructure.Persistence;
-using Mv.Worker.Adapters.Notification;
+using Mv.Worker.Adapters.Messaging;
 
 namespace Mv.Worker.Extensions;
 

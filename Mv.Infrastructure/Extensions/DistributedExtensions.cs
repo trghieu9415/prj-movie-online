@@ -4,10 +4,10 @@ using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Mv.Application.Ports.Concurrency;
-using Mv.Application.Ports.Storage;
 using Mv.Infrastructure.Adapters.Concurrency;
-using Mv.Infrastructure.Adapters.Storage;
-using Mv.Infrastructure.Options;
+using Mv.Infrastructure.Configs.Options;
+using Mv.Infrastructure.Services;
+using Mv.Infrastructure.Services.Abstractions;
 using StackExchange.Redis;
 
 namespace Mv.Infrastructure.Extensions;
@@ -23,7 +23,7 @@ public static class DistributedExtensions {
         cacheOptions.InstanceName = redisOptions.InstanceName;
       });
     services.AddStackExchangeRedisCache(_ => {});
-    services.AddScoped<ICacheStorage, RedisCacheStorage>();
+    services.AddScoped<ICacheService, RedisCacheService>();
 
     // Redis Connection (Multiplexer for Locking)
     services.AddSingleton<IConnectionMultiplexer>(serviceProvider => {

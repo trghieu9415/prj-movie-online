@@ -6,7 +6,7 @@ public record OrderCompletedEvent(
   Guid OrderId,
   Guid CustomerId,
   Guid ShowtimeId,
-  List<Guid> SeatIds
+  ICollection<Guid> SeatIds
 ) : DomainEvent {
   public override Guid AggregateId => OrderId;
 }

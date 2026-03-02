@@ -3,14 +3,11 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.IdentityModel.Tokens;
 using Mv.Application.Exceptions;
 using Mv.Application.Models;
-using Mv.Application.Ports.Notification;
 using Mv.Application.Ports.Security;
-using Mv.Application.Ports.Storage;
-using Mv.Infrastructure.Identity;
-using Mv.Infrastructure.Options;
+using Mv.Infrastructure.Persistence.Identity;
+using Mv.Infrastructure.Services.Abstractions;
 
 namespace Mv.Infrastructure.Adapters.Security;
 
@@ -18,8 +15,7 @@ public class AuthService(
   UserManager<AppUser> userManager,
   IJwtService jwtService,
   IEmailService emailService,
-  ICacheStorage cache,
-  JwtOptions jwtOptions
+  ICacheService cache
 ) : IAuthService {
   public async Task<AuthTokens> RegisterAsync(User user, string password, CancellationToken ct) {
     var existingUser = await userManager.FindByEmailAsync(user.Email);
@@ -41,6 +37,8 @@ public class AuthService(
       throw new WorkflowException(result.Errors.First().Description);
     }
 
+    await cache.SyncSecurityStampAsync(appUser.Id, appUser.SecurityStamp!, ct);
+
     var userModel = ToUserModel(appUser);
     return new AuthTokens(jwtService.GenerateAccessToken(userModel), jwtService.GenerateRefreshToken(userModel));
   }
@@ -56,6 +54,11 @@ public class AuthService(
     if (!result.Succeeded) {
       var error = result.Errors.FirstOrDefault()?.Description ?? "Mật khẩu cũ không đúng";
       throw new WorkflowException(error);
+    }
+
+    var stampResult = await userManager.UpdateSecurityStampAsync(user);
+    if (stampResult.Succeeded) {
+      await cache.SyncSecurityStampAsync(user.Id, user.SecurityStamp!, ct);
     }
 
     var userModel = ToUserModel(user);
@@ -93,41 +96,50 @@ public class AuthService(
         throw new WorkflowException("Đổi mật khẩu thất bại");
       }
 
-      await userManager.UpdateSecurityStampAsync(user);
+      var stampResult = await userManager.UpdateSecurityStampAsync(user);
+      if (stampResult.Succeeded) {
+        await cache.SyncSecurityStampAsync(user.Id, user.SecurityStamp!, ct);
+      }
     } catch {
       throw new WorkflowException("Mã xác nhận đã hết hạn hoặc không hợp lệ", 401);
     }
   }
 
-  public async Task<AuthTokens> RefreshAsync(string refreshToken, CancellationToken ct) {
-    var tokenHandler = new JwtSecurityTokenHandler();
-    var key = Encoding.UTF8.GetBytes(jwtOptions.Secret!);
-
-    tokenHandler.ValidateToken(refreshToken, new TokenValidationParameters {
-      ValidateIssuerSigningKey = true,
-      IssuerSigningKey = new SymmetricSecurityKey(key),
-      ValidateIssuer = true,
-      ValidIssuer = jwtOptions.Issuer,
-      ValidateAudience = true,
-      ValidAudience = jwtOptions.Audience,
-      ClockSkew = TimeSpan.Zero
-    }, out var validatedToken);
-
-    var jwtToken = (JwtSecurityToken)validatedToken;
-
-    var tokenType = jwtToken.Claims.FirstOrDefault(x => x.Type == "token_type")?.Value;
-    if (tokenType != "refresh") {
-      throw new WorkflowException("Token không hợp lệ");
+  public async Task<bool> ValidateSecurityStampAsync(Guid userId, string tokenSecurityStamp, CancellationToken ct) {
+    var cachedSecurityStamp = await cache.GetSecurityStampAsync(userId, ct);
+    if (cachedSecurityStamp != null) {
+      return tokenSecurityStamp == cachedSecurityStamp;
     }
 
-    var isBlacklisted = await cache.IsBlacklistedAsync(jwtToken.Id, ct);
-    if (isBlacklisted) {
+    var user = await userManager.FindByIdAsync(userId.ToString());
+    if (user == null || user.IsDeleted) {
+      return false;
+    }
+
+    await cache.SyncSecurityStampAsync(userId, user.SecurityStamp!, ct);
+    return tokenSecurityStamp == user.SecurityStamp;
+  }
+
+  public async Task<AuthTokens> RefreshAsync(string refreshToken, CancellationToken ct) {
+    var principal = jwtService.ValidateToken(refreshToken);
+    if (principal == null) {
+      throw new WorkflowException("Token không hợp lệ hoặc đã hết hạn", 401);
+    }
+
+    var tokenType = principal.FindFirst("token_type")?.Value;
+    if (tokenType != "refresh") {
+      throw new WorkflowException("Token không đúng loại", 401);
+    }
+
+    var jti = principal.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+    var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    var tokenStamp = principal.FindFirst("security_stamp")?.Value;
+
+    if (await cache.IsBlacklistedAsync(jti!, ct)) {
       throw new WorkflowException("Phiên đăng nhập đã bị vô hiệu hóa", 401);
     }
 
-    var userId = jwtToken.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
-
-    var user = await userManager.FindByIdAsync(userId);
+    var user = await userManager.FindByIdAsync(userId!);
     if (user == null || user.IsDeleted) {
       throw new WorkflowException("Tài khoản không hợp lệ", 401);
     }
@@ -136,12 +148,18 @@ public class AuthService(
       throw new WorkflowException("Tài khoản đã bị khóa", 403);
     }
 
-    var tokenStamp = jwtToken.Claims.FirstOrDefault(x => x.Type == "security_stamp")?.Value;
     if (tokenStamp != user.SecurityStamp) {
       throw new WorkflowException("Thông tin bảo mật đã thay đổi, vui lòng đăng nhập lại", 401);
     }
 
-    await cache.BlacklistAsync(jwtToken.Id, jwtToken.ValidTo - DateTime.UtcNow, ct);
+    var expClaim = principal.FindFirst(JwtRegisteredClaimNames.Exp)?.Value;
+    if (long.TryParse(expClaim, out var expUnix)) {
+      var expiresAt = DateTimeOffset.FromUnixTimeSeconds(expUnix).UtcDateTime;
+      var remainingTime = expiresAt - DateTime.UtcNow;
+      if (remainingTime.TotalSeconds > 0) {
+        await cache.BlacklistAsync(jti!, remainingTime, ct);
+      }
+    }
 
     var userModel = ToUserModel(user);
     return new AuthTokens(
@@ -163,7 +181,10 @@ public class AuthService(
         var userId = jwtToken.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
         var user = await userManager.FindByIdAsync(userId);
         if (user != null) {
-          await userManager.UpdateSecurityStampAsync(user);
+          var stampResult = await userManager.UpdateSecurityStampAsync(user);
+          if (stampResult.Succeeded) {
+            await cache.SyncSecurityStampAsync(user.Id, user.SecurityStamp!, ct);
+          }
         }
       } else {
         var remainingTime = jwtToken.ValidTo - DateTime.UtcNow;
@@ -188,6 +209,8 @@ public class AuthService(
       throw new WorkflowException("Tài khoản đang bị khóa. Vui lòng liên hệ Admin.", 403);
     }
 
+    await cache.SyncSecurityStampAsync(user.Id, user.SecurityStamp!, ct);
+
     var userModel = ToUserModel(user);
     return new AuthTokens(
       jwtService.GenerateAccessToken(userModel),
@@ -195,6 +218,7 @@ public class AuthService(
     );
   }
 
+  // NOTE: ========== [Helper] ==========
   private static User ToUserModel(AppUser u) {
     return new User {
       Id = u.Id,

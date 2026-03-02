@@ -1,6 +1,6 @@
 using MediatR;
 using Mv.Application.Exceptions;
-using Mv.Application.Ports.Repositories.Read;
+using Mv.Application.Repositories.Read;
 
 namespace Mv.Application.UseCases.Scheduling.GetListing;
 

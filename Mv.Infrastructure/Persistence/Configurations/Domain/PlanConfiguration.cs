@@ -9,6 +9,7 @@ public class PlanConfiguration : BaseConfiguration<Plan> {
     base.Configure(builder);
 
     builder.Property(p => p.Name).IsRequired().HasMaxLength(255);
+    builder.Property(p => p.Status).HasConversion<string>().HasMaxLength(20);
 
     builder.HasMany(p => p.Listings)
       .WithOne()

@@ -1,7 +1,7 @@
 ﻿using Serilog;
 using Serilog.Events;
 
-namespace L0.API.Extensions;
+namespace Mv.Presentation.Extensions;
 
 public static class SerilogExtension {
   public static void AddSerilogCustom(this WebApplicationBuilder builder) {

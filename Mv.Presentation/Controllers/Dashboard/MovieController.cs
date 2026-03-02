@@ -1,3 +1,3 @@
-﻿namespace Presentation.Controllers.Dashboard;
+﻿namespace Mv.Presentation.Controllers.Dashboard;
 
 public class MovieController {}

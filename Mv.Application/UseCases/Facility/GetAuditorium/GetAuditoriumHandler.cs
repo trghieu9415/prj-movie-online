@@ -2,7 +2,7 @@
 using MediatR;
 using Mv.Application.DTOs;
 using Mv.Application.Exceptions;
-using Mv.Application.Ports.Repositories;
+using Mv.Application.Repositories;
 
 namespace Mv.Application.UseCases.Facility.GetAuditorium;
 

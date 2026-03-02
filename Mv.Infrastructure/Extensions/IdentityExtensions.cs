@@ -2,8 +2,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using Mv.Application.Ports.Security;
 using Mv.Infrastructure.Adapters.Security;
-using Mv.Infrastructure.Identity;
 using Mv.Infrastructure.Persistence;
+using Mv.Infrastructure.Persistence.Identity;
+using Mv.Infrastructure.Services;
+using Mv.Infrastructure.Services.Abstractions;
 
 namespace Mv.Infrastructure.Extensions;
 
@@ -23,6 +25,8 @@ public static class IdentityExtensions {
     // Auth Services Implementation
     services.AddScoped<IAuthService, AuthService>();
     services.AddScoped<IUserService, UserService>();
+
+    // Jwt Service
     services.AddScoped<IJwtService, JwtService>();
 
     return services;

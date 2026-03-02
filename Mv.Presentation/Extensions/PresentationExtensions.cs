@@ -1,10 +1,11 @@
-﻿using System.Text;
+﻿using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Mv.Application.Ports.Realtime;
 using Mv.Application.Ports.Security;
-using Mv.Infrastructure.Options;
+using Mv.Infrastructure.Configs.Options;
 using Mv.Presentation.Adapters.Realtime;
 using Mv.Presentation.Adapters.Security;
 
@@ -46,6 +47,30 @@ public static class PresentationExtensions {
           };
 
           bearerOptions.Events = new JwtBearerEvents {
+            OnTokenValidated = async context => {
+              var auth = context.HttpContext.RequestServices.GetRequiredService<IAuthService>();
+
+              var userId = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+              var tokenStamp = context.Principal?.FindFirstValue("security_stamp");
+
+              if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(tokenStamp)) {
+                context.Fail("Token thiếu thông tin bảo mật.");
+                return;
+              }
+
+              if (!Guid.TryParse(userId, out var userGuid)) {
+                context.Fail("Định danh người dùng không hợp lệ.");
+                return;
+              }
+
+              var stampValidated = await auth.ValidateSecurityStampAsync(
+                userGuid, tokenStamp, context.HttpContext.RequestAborted
+              );
+              if (!stampValidated) {
+                context.Fail("Phiên làm việc đã hết hạn hoặc mật khẩu đã thay đổi.");
+              }
+            },
+
             OnMessageReceived = context => {
               var accessToken = context.Request.Query["access_token"];
               var path = context.HttpContext.Request.Path;

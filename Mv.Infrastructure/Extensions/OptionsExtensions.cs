@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Mv.Infrastructure.Options;
+using Mv.Infrastructure.Configs;
+using Mv.Infrastructure.Configs.Options;
 
 namespace Mv.Infrastructure.Extensions;
 

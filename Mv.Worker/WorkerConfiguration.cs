@@ -1,9 +1,8 @@
-﻿using L3.Worker.Extensions;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Mv.Worker.Extensions;
 
-namespace L3.Worker;
+namespace Mv.Worker;
 
 public static class WorkerConfiguration {
   public static IServiceCollection AddWorker(this IServiceCollection services, IConfiguration config) {

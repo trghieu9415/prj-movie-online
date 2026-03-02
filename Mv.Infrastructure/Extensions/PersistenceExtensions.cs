@@ -3,9 +3,10 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Mv.Application.Abstractions;
-using Mv.Application.Ports.Repositories;
-using Mv.Infrastructure.Adapters.Repositories;
+using Mv.Application.Repositories;
 using Mv.Infrastructure.Persistence;
+using Mv.Infrastructure.Persistence.Repositories;
+using Mv.Infrastructure.Seeding;
 using Npgsql;
 
 namespace Mv.Infrastructure.Extensions;
@@ -33,6 +34,9 @@ public static class PersistenceExtensions {
     // Repositories
     services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
     services.AddScoped(typeof(IReadRepository<,>), typeof(EfReadRepository<,>));
+
+    // Seeding
+    services.AddScoped<DbInitializer>();
 
     return services;
   }

@@ -4,7 +4,7 @@ using Mv.Application.Exceptions;
 using Mv.Application.Models;
 using Mv.Application.Ports.Security;
 using Mv.Infrastructure.Exceptions;
-using Mv.Infrastructure.Identity;
+using Mv.Infrastructure.Persistence.Identity;
 
 namespace Mv.Infrastructure.Adapters.Security;
 

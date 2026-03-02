@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Mv.Application.Abstractions;
 using Mv.Application.Exceptions;
-using Mv.Infrastructure.Identity;
+using Mv.Infrastructure.Persistence.Identity;
 
 namespace Mv.Infrastructure.Persistence;
 

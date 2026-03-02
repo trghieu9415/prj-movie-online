@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Mv.Application.Abstractions;
-using Mv.Application.Ports.Notification;
+using Mv.Application.Ports.Messaging;
 
 namespace Mv.Application.Behaviors;
 

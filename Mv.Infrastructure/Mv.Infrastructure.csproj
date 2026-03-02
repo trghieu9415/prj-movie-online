@@ -30,4 +30,15 @@
     <ProjectReference Include="..\Mv.Domain\Mv.Domain.csproj"/>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Persistence\Scripts\tables_postgres.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Adapters\Cache\"/>
+  </ItemGroup>
+
+
 </Project>

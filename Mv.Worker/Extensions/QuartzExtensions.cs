@@ -1,9 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Mv.Worker;
 using Quartz;
 
-namespace L3.Worker.Extensions;
+namespace Mv.Worker.Extensions;
 
 public static class QuartzExtensions {
   public static IServiceCollection AddQuartzInfrastructure(this IServiceCollection services, IConfiguration config) {

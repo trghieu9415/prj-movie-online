@@ -1,10 +1,10 @@
-using L0.API.Extensions;
-using L3.Worker;
 using Microsoft.EntityFrameworkCore;
 using Mv.Infrastructure;
+using Mv.Infrastructure.Seeding;
 using Mv.Presentation.Extensions;
 using Mv.Presentation.Hubs;
 using Mv.Presentation.Middlewares;
+using Mv.Worker;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +30,20 @@ builder.Services.AddHttpContextAccessor();
 // || -_-_-_-_-_-_-_-_-_-_-_-_-_-_ APP BUILD _-_-_-_-_-_-_-_-_-_-_-_-_-_- ||
 // =========================================================================
 var app = builder.Build();
+
+// --- CLI Flag: Seeding Data ---
+if (args.Contains("--seeding")) {
+  using var scope = app.Services.CreateScope();
+  try {
+    var initializer = scope.ServiceProvider.GetRequiredService<DbInitializer>();
+    await initializer.SeedAsync();
+  } catch (Exception ex) {
+    Console.WriteLine($"[-] Lỗi trong quá trình Seeding: {ex.Message}");
+  }
+
+  return;
+}
+
 
 // --- Custom Middlewares ---
 app.UseMiddleware<GlobalExceptionMiddleware>();
