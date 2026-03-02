@@ -1,3 +1,5 @@
-﻿namespace Mv.Application.DTOs;
+﻿using Mv.Application.DTOs.Base;
 
-public record SeatDto(Guid Id, char Row, int Number);
+namespace Mv.Application.DTOs;
+
+public record SeatDto(Guid Id, char Row, int Number) : IdDto(Id);

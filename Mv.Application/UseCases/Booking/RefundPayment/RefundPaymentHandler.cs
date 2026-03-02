@@ -10,7 +10,7 @@ public class RefundPaymentHandler(
   IGatewayFactory gatewayFactory
 ) : IRequestHandler<RefundPaymentCommand, bool> {
   public async Task<bool> Handle(RefundPaymentCommand request, CancellationToken ct) {
-    var payment = await paymentRepository.GetByIdAsync(request.PaymentId, ct);
+    var payment = await paymentRepository.GetByIdAsync(request.Id, ct);
     if (payment == null) {
       return false;
     }

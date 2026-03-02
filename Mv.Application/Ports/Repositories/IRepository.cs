@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Domain.Base;
+using Domain.Entities;
 
 namespace Mv.Application.Ports.Repositories;
 
@@ -12,7 +13,7 @@ public interface IRepository<T> where T : BaseEntity {
     CancellationToken ct = default
   );
 
-  Task<T>? GetFirstAsync(
+  Task<T?> GetFirstAsync(
     Expression<Func<T, bool>>? criteria = null,
     CancellationToken ct = default
   );
@@ -23,7 +24,7 @@ public interface IRepository<T> where T : BaseEntity {
     CancellationToken ct = default
   );
 
-  Task<IReadOnlyCollection<Guid>> GetMissingIds(ICollection<Guid> ids, CancellationToken ct = default);
+  Task<IReadOnlyCollection<Guid>> GetMissingIdsAsync(ICollection<Guid> ids, CancellationToken ct = default);
 
   Task<Guid> CreateAsync(T entity, CancellationToken ct = default);
   Task UpdateAsync(T entity, CancellationToken ct = default);

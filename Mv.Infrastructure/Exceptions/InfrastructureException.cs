@@ -1,3 +1,3 @@
-﻿namespace Infrastructure.Exceptions;
+﻿namespace Mv.Infrastructure.Exceptions;
 
-public class InfrastructureException {}
+public class InfrastructureException(string message) : Exception(message);

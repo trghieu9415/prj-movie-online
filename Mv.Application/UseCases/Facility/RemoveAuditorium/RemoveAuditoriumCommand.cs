@@ -1,3 +1,5 @@
-﻿namespace Mv.Application.UseCases.Facility.RemoveAuditorium;
+﻿using Mv.Application.Abstractions;
 
-public record RemoveAuditoriumCommand {}
+namespace Mv.Application.UseCases.Facility.RemoveAuditorium;
+
+public record RemoveAuditoriumCommand(Guid Id) : ICommand<bool>;

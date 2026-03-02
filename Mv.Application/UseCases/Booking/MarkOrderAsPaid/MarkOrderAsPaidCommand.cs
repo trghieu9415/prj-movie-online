@@ -2,4 +2,4 @@
 
 namespace Mv.Application.UseCases.Booking.MarkOrderAsPaid;
 
-public record MarkOrderAsPaidCommand(Guid OrderId) : ICommand<bool>;
+public record MarkOrderAsPaidCommand(Guid Id) : ICommand<bool>;

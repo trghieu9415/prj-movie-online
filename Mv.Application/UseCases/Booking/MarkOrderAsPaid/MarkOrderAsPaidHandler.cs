@@ -10,7 +10,7 @@ public class MarkOrderAsPaidHandler(
 ) : IRequestHandler<MarkOrderAsPaidCommand, bool> {
   public async Task<bool> Handle(MarkOrderAsPaidCommand request, CancellationToken ct) {
     var order =
-      await orderRepository.GetByIdAsync(request.OrderId, ct)
+      await orderRepository.GetByIdAsync(request.Id, ct)
       ?? throw new WorkflowException("Đơn hàng không tồn tại", 404);
 
     order.MarkAsPaid();

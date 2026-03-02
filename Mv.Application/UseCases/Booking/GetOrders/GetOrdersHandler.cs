@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Domain.Entities;
+﻿using Domain.Entities;
 using MediatR;
 using Mv.Application.DTOs;
 using Mv.Application.Exceptions;
@@ -10,20 +9,18 @@ using Mv.Application.Ports.Security;
 namespace Mv.Application.UseCases.Booking.GetOrders;
 
 public class GetOrdersHandler(
-  IReadRepository<Order> orderReadRepository,
-  ICurrentUser currentUser,
-  IMapper mapper
+  IReadRepository<Order, OrderDto> orderReadRepository,
+  ICurrentUser currentUser
 ) : IRequestHandler<GetOrdersQuery, GetOrdersResult> {
   public async Task<GetOrdersResult> Handle(GetOrdersQuery request, CancellationToken ct) {
     if (currentUser.Role != UserRole.Admin) {
       throw new WorkflowException("Chỉ có người dùng quản trị mới có thể thực hiện hành vi này", 403);
     }
 
-    var (total, orders) = await orderReadRepository.GetAsync(
-      null, [x => x.Tickets], ct
+    var (total, orderDtos) = await orderReadRepository.GetAsync(
+      null, null, ct
     );
 
-    var orderDtos = mapper.Map<List<OrderDto>>(orders);
     var meta = Meta.Create(request.Page, request.PageSize, total);
     return new GetOrdersResult(orderDtos, meta);
   }

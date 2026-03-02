@@ -1,5 +1,8 @@
-﻿namespace Mv.Application.UseCases.Scheduling.GetPlan;
+﻿using Mv.Application.Abstractions;
+using Mv.Application.DTOs;
 
-public class GetPlanQuery {
-  
-}
+namespace Mv.Application.UseCases.Scheduling.GetPlan;
+
+public record GetPlanQuery(Guid Id) : IQuery<GetPlanResult>;
+
+public record GetPlanResult(PlanDto Plan);

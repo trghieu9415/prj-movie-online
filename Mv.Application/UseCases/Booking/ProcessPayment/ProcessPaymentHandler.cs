@@ -10,7 +10,7 @@ public class ProcessPaymentHandler(
   IGatewayFactory gatewayFactory
 ) : IRequestHandler<ProcessPaymentCommand, bool> {
   public async Task<bool> Handle(ProcessPaymentCommand request, CancellationToken ct) {
-    var payment = await paymentRepository.GetByIdAsync(request.PaymentId, ct);
+    var payment = await paymentRepository.GetByIdAsync(request.Id, ct);
     if (payment == null) {
       return false;
     }

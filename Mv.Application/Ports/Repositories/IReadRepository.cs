@@ -1,23 +1,26 @@
 ﻿using System.Linq.Expressions;
 using Domain.Base;
+using Mv.Application.DTOs.Base;
 
 namespace Mv.Application.Ports.Repositories;
 
-public interface IReadRepository<T> where T : BaseEntity {
-  Task<T?> GetByIdAsync(
+public interface IReadRepository<TEntity, TDto>
+  where TEntity : BaseEntity
+  where TDto : IdDto {
+  Task<TDto?> GetByIdAsync(
     Guid id,
     CancellationToken ct = default
   );
 
-  Task<(int total, List<T> entities)> GetAsync(
-    Expression<Func<T, bool>>? criteria = null,
-    List<Expression<Func<T, object>>>? includes = null,
+  Task<(int total, List<TDto> entities)> GetAsync(
+    Expression<Func<TEntity, bool>>? criteria = null,
+    List<Expression<Func<TEntity, object>>>? includes = null,
     CancellationToken ct = default
   );
 
-  Task<(int total, List<T> entities)> GetDeletedAsync(
-    Expression<Func<T, bool>>? criteria = null,
-    List<Expression<Func<T, object>>>? includes = null,
+  Task<(int total, List<TDto> entities)> GetDeletedAsync(
+    Expression<Func<TEntity, bool>>? criteria = null,
+    List<Expression<Func<TEntity, object>>>? includes = null,
     CancellationToken ct = default
   );
 }

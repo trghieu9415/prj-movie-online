@@ -1,3 +1,5 @@
-﻿namespace Presentation.Adapters.Realtime;
+﻿using Mv.Application.Ports.Realtime;
 
-public class ShowtimeNotifier {}
+namespace Mv.Presentation.Adapters.Realtime;
+
+public class ShowtimeNotifier : IShowtimeNotifier {}

@@ -2,4 +2,4 @@
 
 namespace Mv.Application.UseCases.Booking.CancelOrder;
 
-public record CancelOrderCommand(Guid OrderId) : ICommand<bool>;
+public record CancelOrderCommand(Guid Id) : ICommand<bool>;

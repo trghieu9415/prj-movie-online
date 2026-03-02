@@ -1,10 +1,9 @@
 ﻿using Domain.Base;
-using Domain.ValueObjects;
 
 namespace Domain.Entities;
 
 public class Movie : BaseEntity {
-  private Movie() {}
+  private Movie() { }
 
   public string Name { get; private set; } = null!;
   public int Duration { get; private set; }
@@ -24,9 +23,5 @@ public class Movie : BaseEntity {
     Duration = duration;
     PosterUrl = posterUrl;
     return this;
-  }
-
-  public MovieSnapshot ToSnapshot() {
-    return new MovieSnapshot(Id, Name, Duration, PosterUrl);
   }
 }

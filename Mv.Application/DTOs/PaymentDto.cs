@@ -1,4 +1,5 @@
 ﻿using Domain.Enums;
+using Mv.Application.DTOs.Base;
 
 namespace Mv.Application.DTOs;
 
@@ -10,4 +11,4 @@ public record PaymentDto(
   PaymentMethod Method,
   PaymentStatus Status,
   DateTime CreatedAt
-);
+) : IdDto(Id);

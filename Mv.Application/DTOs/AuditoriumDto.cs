@@ -1,3 +1,5 @@
-﻿namespace Mv.Application.DTOs;
+﻿using Mv.Application.DTOs.Base;
 
-public record AuditoriumDto(Guid Id, string Name, List<SeatDto> Seats);
+namespace Mv.Application.DTOs;
+
+public record AuditoriumDto(Guid Id, string Name, List<SeatDto> Seats) : IdDto(Id);

@@ -2,4 +2,4 @@
 
 namespace Mv.Application.UseCases.Catalog.UpdateMovie;
 
-public record UpdateMovieCommand(Guid MovieId, string Name, int Duration, string PosterUrl) : ICommand<bool>;
+public record UpdateMovieCommand(Guid Id, string Name, int Duration, string PosterUrl) : ICommand<bool>;

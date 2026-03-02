@@ -1,12 +1,11 @@
 ﻿using Domain.Base;
-using Domain.Base.Event;
 
 namespace Domain.Entities;
 
-public class Plan : BaseEntity, IHasDomainEvent {
-  private readonly List<Showtime> _showtimes = [];
-  private Plan() {}
-  public IReadOnlyCollection<Showtime> Showtimes => _showtimes.AsReadOnly();
+public class Plan : BaseEntity {
+  private readonly List<Listing> _listings = [];
+  private Plan() { }
+  public IReadOnlyCollection<Listing> Listings => _listings.AsReadOnly();
 
   public string Name { get; private set; } = null!;
   public int Year { get; private set; }
@@ -23,8 +22,23 @@ public class Plan : BaseEntity, IHasDomainEvent {
     return plan;
   }
 
-  public void SyncShowtimes(ICollection<Showtime> showtimes) {
-    _showtimes.Clear();
-    _showtimes.AddRange(showtimes);
+  public Plan Update(string? name, int year, int month, int week) {
+    Name = name ?? $"Lịch chiếu Tháng {month} tuần {week} Năm {year}.";
+    Year = year;
+    Month = month;
+    Week = week;
+    return this;
+  }
+
+  public void SyncListings(ICollection<Guid> movieIds) {
+    // Delta remove
+    _listings.RemoveAll(l => !movieIds.Contains(l.MovieId));
+
+    // Delta add
+    var existingMovieIds = _listings.Select(l => l.MovieId).ToHashSet();
+    var toAdd = movieIds.Where(id => !existingMovieIds.Contains(id))
+      .Select(id => Listing.Create(id))
+      .ToList();
+    _listings.AddRange(toAdd);
   }
 }
