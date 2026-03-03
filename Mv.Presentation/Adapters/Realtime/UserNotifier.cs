@@ -1,9 +1,18 @@
-﻿using Mv.Application.Ports.Realtime;
+﻿using Microsoft.AspNetCore.SignalR;
+using Mv.Application.Ports.Realtime;
+using Mv.Presentation.Hubs;
 
 namespace Mv.Presentation.Adapters.Realtime;
 
-public class UserNotifier : IUserNotifier {
-  public Task SendToUser(Guid userId, string method, object data, CancellationToken ct = default) {
-    throw new NotImplementedException();
+public class UserNotifier(IHubContext<UserHub> hubContext) : IUserNotifier {
+  public async Task SendToUser(
+    Guid userId,
+    string method,
+    object data,
+    CancellationToken ct = default
+  ) {
+    await hubContext.Clients
+      .User(userId.ToString())
+      .SendAsync(method, data, ct);
   }
 }

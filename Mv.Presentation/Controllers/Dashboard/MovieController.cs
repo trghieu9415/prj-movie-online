@@ -1,3 +1,30 @@
-﻿namespace Mv.Presentation.Controllers.Dashboard;
+﻿using Microsoft.AspNetCore.Mvc;
+using Mv.Application.UseCases.Catalog.AddMovie;
+using Mv.Application.UseCases.Catalog.GetMovies;
+using Mv.Application.UseCases.Catalog.RemoveMovie;
+using Mv.Application.UseCases.Catalog.UpdateMovie;
+using Mv.Presentation.Response;
 
-public class MovieController {}
+namespace Mv.Presentation.Controllers.Dashboard;
+
+public class MovieController : DashboardController {
+  [HttpGet]
+  public async Task<IActionResult> Get([FromQuery] GetMoviesQuery query) {
+    return AppResponse.Success((await Mediator.Send(query)).Movies);
+  }
+
+  [HttpPost]
+  public async Task<IActionResult> Create(AddMovieCommand command) {
+    return AppResponse.Success(await Mediator.Send(command));
+  }
+
+  [HttpPut("{id:guid}")]
+  public async Task<IActionResult> Update(Guid id, UpdateMovieCommand command) {
+    return AppResponse.Success(await Mediator.Send(command with { Id = id }));
+  }
+
+  [HttpDelete("{id:guid}")]
+  public async Task<IActionResult> Delete(Guid id) {
+    return AppResponse.Success(await Mediator.Send(new RemoveMovieCommand(id)));
+  }
+}
