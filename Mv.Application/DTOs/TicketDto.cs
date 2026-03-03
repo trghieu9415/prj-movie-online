@@ -1,3 +1,6 @@
-﻿namespace Mv.Application.DTOs;
+﻿using Domain.ValueObjects;
+using Mv.Application.DTOs.Base;
 
-public class TicketDto {}
+namespace Mv.Application.DTOs;
+
+public record TicketDto(Guid Id, SeatSnapshot SeatSnapshot, decimal Price) : IdDto(Id);

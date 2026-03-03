@@ -1,7 +1,7 @@
-﻿using Mv.Application.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Mv.Application.Models;
 
-namespace Presentation.Response;
+namespace Mv.Presentation.Response;
 
 public static class AppResponse {
   public static ObjectResult Success(string? message = null) {

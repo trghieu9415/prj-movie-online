@@ -1,3 +1,7 @@
-﻿namespace Presentation.Controllers;
+﻿using Microsoft.AspNetCore.Mvc;
 
-public class UserController {}
+namespace Mv.Presentation.Controllers;
+
+[Route("api/user/[controller]")]
+[ApiExplorerSettings(GroupName = "v1")]
+public abstract class UserController : BaseController;

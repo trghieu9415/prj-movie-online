@@ -1,3 +1,5 @@
-﻿namespace Mv.Application.Abstractions;
+﻿using MediatR;
 
-public interface ICommand {}
+namespace Mv.Application.Abstractions;
+
+public interface ICommand<out TResponse> : IRequest<TResponse>, ITransactional;

@@ -8,21 +8,16 @@ public class Ticket : BaseEntity {
 
   public Guid OrderId { get; private set; }
   public Order Order { get; private set; } = null!;
-
-  public string AuditoriumName { get; private set; } = null!;
-
   public SeatSnapshot SeatSnapshot { get; private set; } = null!;
-  public decimal Price { get; private set; }
+  public decimal Price { get; private set; } = 60000;
 
   public static Ticket Create(
-    Order order, string auditoriumName,
-    Guid seatId, char row, int number
+    Order order, SeatSnapshot seatSnapshot
   ) {
     return new Ticket {
       OrderId = order.Id,
       Order = order,
-      AuditoriumName = auditoriumName,
-      SeatSnapshot = new SeatSnapshot(seatId, row, number)
+      SeatSnapshot = seatSnapshot
     };
   }
 

@@ -1,5 +1,5 @@
 ﻿namespace Domain.Enums;
 
 public enum OrderStatus {
-  Pending, Confirmed, Canceled
+  Pending, Confirmed, Canceled, Refunded
 }

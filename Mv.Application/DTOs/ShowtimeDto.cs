@@ -1,3 +1,11 @@
-﻿namespace Mv.Application.DTOs;
+﻿using Mv.Application.DTOs.Base;
 
-public class ShowtimeDto {}
+namespace Mv.Application.DTOs;
+
+public record ShowtimeDto(
+  Guid Id,
+  Guid AuditoriumId,
+  DateOnly Date,
+  TimeSpan StartAt,
+  TimeSpan EndAt
+) : IdDto(Id);

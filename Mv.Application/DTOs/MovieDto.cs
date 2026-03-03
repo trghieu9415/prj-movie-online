@@ -1,3 +1,5 @@
-﻿namespace Mv.Application.DTOs;
+﻿using Mv.Application.DTOs.Base;
 
-public class MovieDto {}
+namespace Mv.Application.DTOs;
+
+public record MovieDto(Guid Id, string Name, int Duration, string PosterUrl) : IdDto(Id);

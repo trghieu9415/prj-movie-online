@@ -1,3 +1,7 @@
-﻿namespace Presentation.Hubs;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
 
-public class UserHub {}
+namespace Mv.Presentation.Hubs;
+
+[Authorize]
+public class UserHub : Hub;

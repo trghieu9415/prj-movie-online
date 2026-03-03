@@ -1,3 +1,11 @@
-﻿namespace Mv.Application.DTOs;
+﻿using Mv.Application.DTOs.Base;
 
-public class PlanDto {}
+namespace Mv.Application.DTOs;
+
+public record PlanDto(
+  Guid Id,
+  string Name,
+  DateOnly StartDate,
+  DateOnly EndDate,
+  List<ListingDto> Listings
+) : IdDto(Id);
