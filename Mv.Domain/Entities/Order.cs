@@ -21,7 +21,8 @@ public class Order : BaseEntity {
 
   public static Order Create(
     Guid customerId, string customerName,
-    Guid showtimeId, string auditoriumName
+    Guid showtimeId, string auditoriumName,
+    ICollection<SeatSnapshot> seatSnapshots
   ) {
     var order = new Order {
       CustomerId = customerId,
@@ -29,28 +30,20 @@ public class Order : BaseEntity {
       ShowtimeId = showtimeId,
       AuditoriumName = auditoriumName
     };
-
+    order.SyncTickets(seatSnapshots);
+    order.AddDomainEvent(new OrderPlacedEvent(
+      order.Id,
+      order.CustomerId,
+      order.ShowtimeId,
+      order.Tickets.Select(x => x.SeatSnapshot.SeatId).ToList()
+    ));
     return order;
   }
 
-  public Order SyncTickets(ICollection<SeatSnapshot> seatSnapshots) {
-    _tickets.Clear();
-    ClearEvents();
-    foreach (var seatSnapshot in seatSnapshots) {
-      var ticket = Ticket.Create(this, seatSnapshot);
-      _tickets.Add(ticket);
-      TotalPrice += ticket.Price;
-    }
-
-    AddDomainEvent(new SeatsReservedEvent(
-      Id, ShowtimeId, Tickets.Select(x => x.SeatSnapshot.SeatId).ToList()
-    ));
-    return this;
-  }
 
   public void MarkAsPaid() {
     if (Status != OrderStatus.Pending) {
-      throw new DomainException("Chỉ có thể thanh toán đơn khi đơn ở trạng thái chờ");
+      throw new DomainException("Chỉ có thể thanh toán đơn khi đơn ở trạng thái Chờ");
     }
 
     Status = OrderStatus.Confirmed;
@@ -61,12 +54,31 @@ public class Order : BaseEntity {
 
   public void Cancel() {
     if (Status != OrderStatus.Pending) {
-      throw new DomainException("Chỉ có thể hủy đơn khi đơn ở trạng thái chờ");
+      throw new DomainException("Chỉ có thể hủy đơn khi đơn ở trạng thái Chờ");
     }
 
     Status = OrderStatus.Canceled;
-    AddDomainEvent(new BookingCanceledEvent(
+    AddDomainEvent(new OrderCanceledEvent(
       Id, CustomerId, ShowtimeId, Tickets.Select(x => x.SeatSnapshot.SeatId).ToList()
     ));
+  }
+
+  public void Refund() {
+    if (Status != OrderStatus.Confirmed) {
+      throw new DomainException("Chỉ có thể hoàn đơn khi đơn ở trạng thái Đã xác nhận");
+    }
+
+    Status = OrderStatus.Refunded;
+  }
+
+
+  private void SyncTickets(ICollection<SeatSnapshot> seatSnapshots) {
+    _tickets.Clear();
+    TotalPrice = 0;
+    foreach (var seatSnapshot in seatSnapshots) {
+      var ticket = Ticket.Create(this, seatSnapshot);
+      _tickets.Add(ticket);
+      TotalPrice += ticket.Price;
+    }
   }
 }

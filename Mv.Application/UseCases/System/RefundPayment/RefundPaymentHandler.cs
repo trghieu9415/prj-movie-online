@@ -3,14 +3,16 @@ using MediatR;
 using Mv.Application.Ports.Gateway;
 using Mv.Application.Repositories;
 
-namespace Mv.Application.UseCases.Booking.RefundPayment;
+namespace Mv.Application.UseCases.System.RefundPayment;
 
 public class RefundPaymentHandler(
   IRepository<Payment> paymentRepository,
   IGatewayFactory gatewayFactory
 ) : IRequestHandler<RefundPaymentCommand, bool> {
   public async Task<bool> Handle(RefundPaymentCommand request, CancellationToken ct) {
-    var payment = await paymentRepository.GetByIdAsync(request.Id, ct);
+    var payment = await paymentRepository.GetFirstAsync(
+      p => p.OrderId == request.OrderId, ct
+    );
     if (payment == null) {
       return false;
     }

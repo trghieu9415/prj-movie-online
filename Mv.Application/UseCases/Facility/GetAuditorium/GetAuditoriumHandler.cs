@@ -1,17 +1,15 @@
-﻿using Domain.Entities;
-using MediatR;
-using Mv.Application.DTOs;
+﻿using MediatR;
 using Mv.Application.Exceptions;
-using Mv.Application.Repositories;
+using Mv.Application.Ports.Cache;
 
 namespace Mv.Application.UseCases.Facility.GetAuditorium;
 
 public class GetAuditoriumHandler(
-  IReadRepository<Auditorium, AuditoriumDto> auditoriumReadRepository
+  IBusinessCache businessCache
 ) : IRequestHandler<GetAuditoriumQuery, GetAuditoriumResult> {
   public async Task<GetAuditoriumResult> Handle(GetAuditoriumQuery request, CancellationToken ct) {
     var auditoriumDto =
-      await auditoriumReadRepository.GetByIdAsync(request.Id, ct)
+      await businessCache.GetAuditoriumAsync(request.Id, ct)
       ?? throw new WorkflowException("Phòng chiếu không tồn tại", 404);
 
     return new GetAuditoriumResult(auditoriumDto);

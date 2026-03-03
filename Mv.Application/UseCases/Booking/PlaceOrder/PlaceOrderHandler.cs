@@ -37,10 +37,10 @@ public class PlaceOrderHandler(
       currentUser.Id,
       currentUser.FullName,
       showtime.Id,
-      auditorium.Name
+      auditorium.Name,
+      seats.Select(s => s.ToSnapshot()).ToList()
     );
 
-    order.SyncTickets(seats.Select(s => s.ToSnapshot()).ToList());
     await orderRepository.CreateAsync(order, ct);
     return order.Id;
   }

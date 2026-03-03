@@ -5,8 +5,7 @@ namespace Mv.Application.DTOs;
 public record PlanDto(
   Guid Id,
   string Name,
-  int Year,
-  int Month,
-  int Week,
+  DateOnly StartDate,
+  DateOnly EndDate,
   List<ListingDto> Listings
 ) : IdDto(Id);

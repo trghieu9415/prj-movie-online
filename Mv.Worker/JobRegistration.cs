@@ -3,9 +3,7 @@
 namespace Mv.Worker;
 
 public static class JobRegistration {
-  public static void RegisterApplicationJobs(this IServiceCollectionQuartzConfigurator q) {
-    var startupKey = new JobKey("StartupSyncJob");
-  }
+  public static void RegisterApplicationJobs(this IServiceCollectionQuartzConfigurator q) {}
 
   // NOTE: ========== [Helper Methods] ==========
   private static TimeZoneInfo GetVnTimeZone() {

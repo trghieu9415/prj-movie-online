@@ -14,7 +14,11 @@ public class ListingSeeder(AppDbContext context) : ISeeder {
       return;
     }
 
-    var plans = await context.Set<Plan>().Include(p => p.Listings).ThenInclude(l => l.Showtimes).ToListAsync();
+    var plans = await context.Set<Plan>()
+      .Include(p => p.Listings)
+      .ThenInclude(l => l.Showtimes)
+      .ToListAsync();
+
     if (plans.Count == 0 || plans.All(p => p.Listings.Count == 0)) {
       Console.WriteLine("    -> No Listings found in Plans to seed Showtimes.");
       return;
@@ -30,28 +34,30 @@ public class ListingSeeder(AppDbContext context) : ISeeder {
         aud.GenerateSeatMatrix(8, 10);
         auditoriums.Add(aud);
       }
+
       context.Set<Auditorium>().AddRange(auditoriums);
       await context.SaveChangesAsync();
     }
 
     var random = new Random();
-    var days = Enum.GetValues<DayOfWeek>();
 
     foreach (var plan in plans) {
       foreach (var listing in plan.Listings) {
-        var numShowtimes = random.Next(2, 6);
         var snapshots = new List<ShowtimeSnapshot>();
 
-        for (var i = 0; i < numShowtimes; i++) {
-          var aud = auditoriums[random.Next(auditoriums.Count)];
+        for (var date = plan.StartDate; date <= plan.EndDate; date = date.AddDays(1)) {
+          var numShowtimes = random.Next(2, 6);
 
-          var day = days[random.Next(days.Length)];
-          var startHour = random.Next(9, 21);
-          var startMinute = random.Next(0, 2) * 30; // 0 or 30
-          var startAt = new TimeSpan(startHour, startMinute, 0);
-          var endAt = startAt.Add(TimeSpan.FromHours(2).Add(TimeSpan.FromMinutes(15)));
+          for (var i = 0; i < numShowtimes; i++) {
+            var aud = auditoriums[random.Next(auditoriums.Count)];
 
-          snapshots.Add(new ShowtimeSnapshot(null, aud.Id, day, startAt, endAt));
+            var startHour = random.Next(9, 21);
+            var startMinute = random.Next(0, 2) * 30;
+            var startAt = new TimeSpan(startHour, startMinute, 0);
+
+            var endAt = startAt.Add(TimeSpan.FromHours(2).Add(TimeSpan.FromMinutes(15)));
+            snapshots.Add(new ShowtimeSnapshot(null, aud.Id, date, startAt, endAt));
+          }
         }
 
         listing.SyncShowtimes(snapshots);

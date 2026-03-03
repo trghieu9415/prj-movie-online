@@ -18,7 +18,7 @@ public class ListingReadRepository(AppDbContext dbContext, IMapper mapper)
           .Select(m => new MovieDto(m.Id, m.Name, m.Duration, m.PosterUrl))
           .FirstOrDefault(),
         l.Showtimes.Where(s => !s.IsDeleted).Select(s => new ShowtimeDto(
-          s.Id, s.AuditoriumId, s.DayOfWeek, s.StartAt, s.EndAt
+          s.Id, s.AuditoriumId, s.Date, s.StartAt, s.EndAt
         )).ToList()
       ))
       .FirstOrDefaultAsync(ct);

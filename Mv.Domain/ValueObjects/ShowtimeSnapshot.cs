@@ -3,7 +3,7 @@ namespace Domain.ValueObjects;
 public record ShowtimeSnapshot(
   Guid? Id,
   Guid AuditoriumId,
-  DayOfWeek DayOfWeek,
+  DateOnly Date,
   TimeSpan StartAt,
   TimeSpan EndAt
 );

@@ -12,7 +12,7 @@ public class UpdatePlanHandler(IRepository<Plan> planRepository)
       await planRepository.GetByIdAsync(request.Id, ct)
       ?? throw new WorkflowException("Không tìm thấy kế hoạch", 404);
 
-    plan.Update(request.Name, request.Year, request.Month, request.Week);
+    plan.Update(request.Name, request.StartDate, request.EndDate);
     await planRepository.UpdateAsync(plan, ct);
     return true;
   }

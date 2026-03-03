@@ -1,20 +1,24 @@
 ﻿using Domain.Entities;
+using Domain.Enums;
 using MediatR;
 using Mv.Application.Exceptions;
 using Mv.Application.Repositories;
 
-namespace Mv.Application.UseCases.Booking.MarkOrderAsPaid;
+namespace Mv.Application.UseCases.System.ExpireOrder;
 
-public class MarkOrderAsPaidHandler(
+public class ExpireOrderHandler(
   IRepository<Order> orderRepository
-) : IRequestHandler<MarkOrderAsPaidCommand, bool> {
-  public async Task<bool> Handle(MarkOrderAsPaidCommand request, CancellationToken ct) {
+) : IRequestHandler<ExpireOrderCommand, bool> {
+  public async Task<bool> Handle(ExpireOrderCommand request, CancellationToken ct) {
     var order =
       await orderRepository.GetByIdAsync(request.Id, ct)
       ?? throw new WorkflowException("Đơn hàng không tồn tại", 404);
 
-    order.MarkAsPaid();
+    if (order.Status == OrderStatus.Confirmed) {
+      return false;
+    }
 
+    order.Cancel();
     await orderRepository.UpdateAsync(order, ct);
     return true;
   }

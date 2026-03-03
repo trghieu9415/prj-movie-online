@@ -4,9 +4,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Mv.Application.Abstractions;
 using Mv.Application.Repositories;
+using Mv.Application.Repositories.Read;
 using Mv.Infrastructure.Persistence;
 using Mv.Infrastructure.Persistence.Repositories;
+using Mv.Infrastructure.Persistence.Repositories.Read;
 using Mv.Infrastructure.Seeding;
+using Mv.Infrastructure.Seeding.Seeders;
 using Npgsql;
 
 namespace Mv.Infrastructure.Extensions;
@@ -34,9 +37,16 @@ public static class PersistenceExtensions {
     // Repositories
     services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
     services.AddScoped(typeof(IReadRepository<,>), typeof(EfReadRepository<,>));
+    services.AddScoped<IPlanReadRepository, PlanReadRepository>();
+    services.AddScoped<IListingReadRepository, ListingReadRepository>();
 
     // Seeding
     services.AddScoped<DbInitializer>();
+    services.AddScoped<ISeeder, AdminSeeder>();
+    services.AddScoped<ISeeder, UserSeeder>();
+    services.AddScoped<ISeeder, MovieSeeder>();
+    services.AddScoped<ISeeder, PlanSeeder>();
+    services.AddScoped<ISeeder, ListingSeeder>();
 
     return services;
   }

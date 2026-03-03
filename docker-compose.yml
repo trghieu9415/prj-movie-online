@@ -22,15 +22,33 @@ services:
     volumes:
       - redis_data:/data
 
-  services:
-    mailpit:
-      image: axllent/mailpit
-      container_name: mailpit
-      ports:
-        - "8025:8025"
-        - "1025:1025"
-      restart: unless-stopped
+  mail_local:
+    image: axllent/mailpit:v1.29
+    container_name: mailpit
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    restart: unless-stopped
+    environment:
+      - MP_DATA_FILE=/data/mailpit.db
+    volumes:
+      - mailpit_data:/data
+
+  rabbitmq:
+    image: rabbitmq:4.2.4-management-alpine
+    container_name: rabbitmq
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=password123
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
 
 volumes:
   pg_data:
   redis_data:
+  rabbitmq_data:
+  mailpit_data:

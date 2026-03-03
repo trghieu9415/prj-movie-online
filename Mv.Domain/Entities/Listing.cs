@@ -5,7 +5,7 @@ namespace Domain.Entities;
 
 public class Listing : BaseEntity {
   private readonly List<Showtime> _showtimes = [];
-  private Listing() { }
+  private Listing() {}
 
   public Guid MovieId { get; private set; }
   public IReadOnlyCollection<Showtime> Showtimes => _showtimes.AsReadOnly();
@@ -25,12 +25,22 @@ public class Listing : BaseEntity {
     foreach (var incoming in showtimes) {
       if (!incoming.Id.HasValue) {
         // Null ID means add new
-        _showtimes.Add(Showtime.Create(incoming.AuditoriumId, incoming.DayOfWeek, incoming.StartAt, incoming.EndAt));
+        _showtimes.Add(Showtime.Create(
+          incoming.AuditoriumId,
+          incoming.Date,
+          incoming.StartAt,
+          incoming.EndAt
+        ));
       } else {
         // Existing ID, update it
         var existing = _showtimes.FirstOrDefault(s => s.Id == incoming.Id.Value);
         if (existing != null) {
-          existing.Update(incoming.AuditoriumId, incoming.DayOfWeek, incoming.StartAt, incoming.EndAt);
+          existing.Update(
+            incoming.AuditoriumId,
+            incoming.Date,
+            incoming.StartAt,
+            incoming.EndAt
+          );
         }
       }
     }

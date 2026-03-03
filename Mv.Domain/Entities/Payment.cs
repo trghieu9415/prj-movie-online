@@ -23,7 +23,7 @@ public class Payment : BaseEntity {
     };
   }
 
-  public void MarkAsSucceeded(string transactionId) {
+  public void MarkAsSucceeded(Guid userId, string transactionId) {
     if (Status != PaymentStatus.Pending) {
       throw new DomainException("Chỉ có thể hoàn tất thanh toán khi thanh toán ở trạng thái chờ");
     }
@@ -31,7 +31,7 @@ public class Payment : BaseEntity {
     TransactionId = transactionId;
     Status = PaymentStatus.Succeeded;
     AddDomainEvent(new PaymentCompletedEvent(
-      Id, OrderId, Amount, Method, TransactionId
+      Id, OrderId, userId, Amount, Method, TransactionId
     ));
   }
 

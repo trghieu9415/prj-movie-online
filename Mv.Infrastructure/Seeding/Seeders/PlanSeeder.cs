@@ -21,16 +21,23 @@ public class PlanSeeder(AppDbContext context) : ISeeder {
 
     var random = new Random();
     var plans = new List<Plan>();
-    var currentYear = DateTime.Now.Year;
-    var currentMonth = DateTime.Now.Month;
 
-    for (var w = 1; w <= 4; w++) {
-      var plan = Plan.Create(null, currentYear, currentMonth, w);
+    var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+    var diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
+    var startOfFirstWeek = today.AddDays(-1 * diff);
+
+    for (var i = 0; i < 4; i++) {
+      var startDate = startOfFirstWeek.AddDays(i * 7);
+      var endDate = startDate.AddDays(6);
+
+      var planName = $"Lịch chiếu Tuần {i + 1} ({startDate:dd/MM} - {endDate:dd/MM})";
+      var plan = Plan.Create(planName, startDate, endDate);
 
       var takeCount = random.Next(5, 11);
-      var selectedMovieIds = movies.OrderBy(m => random.Next()).Take(takeCount).Select(m => m.Id).ToList();
+      var selectedMovieIds = movies
+        .OrderBy(_ => random.Next()).Take(takeCount).Select(m => m.Id).ToList();
       plan.SyncListings(selectedMovieIds);
-
       plans.Add(plan);
     }
 

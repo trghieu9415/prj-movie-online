@@ -8,8 +8,10 @@ using Mv.Application.Repositories;
 
 namespace Mv.Infrastructure.Persistence.Repositories;
 
-public class EfReadRepository<TEntity, TDto>(AppDbContext dbContext, IMapper mapper)
-  : IReadRepository<TEntity, TDto>
+public class EfReadRepository<TEntity, TDto>(
+  AppDbContext dbContext,
+  IMapper mapper
+) : IReadRepository<TEntity, TDto>
   where TEntity : BaseEntity
   where TDto : IdDto {
   protected readonly AppDbContext DbContext = dbContext;

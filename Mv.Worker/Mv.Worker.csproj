@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.7"/>
     <PackageReference Include="Quartz.AspNetCore" Version="3.15.1"/>
     <PackageReference Include="Quartz.Serialization.Json" Version="3.15.1"/>
   </ItemGroup>
@@ -19,7 +20,6 @@
 
   <ItemGroup>
     <Folder Include="BackgroundJobs\"/>
-    <Folder Include="Consumers\Command\"/>
   </ItemGroup>
 
 </Project>

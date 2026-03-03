@@ -2,7 +2,7 @@
 
 namespace Domain.Events;
 
-public record BookingCanceledEvent(
+public record OrderPlacedEvent(
   Guid OrderId,
   Guid CustomerId,
   Guid ShowtimeId,

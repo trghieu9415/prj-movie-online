@@ -36,9 +36,5 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Adapters\Cache\"/>
-  </ItemGroup>
-
 
 </Project>

@@ -14,6 +14,7 @@ public static class OptionsExtensions {
     services.RegisterOption<JwtOptions>(config);
     services.RegisterOption<RedisOptions>(config);
     services.RegisterOption<EmailOptions>(config);
+    services.RegisterOption<RabbitMqOptions>(config);
 
     return services;
   }

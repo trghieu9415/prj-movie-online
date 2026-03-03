@@ -12,25 +12,22 @@ public class Plan : BaseEntity {
   public IReadOnlyCollection<Listing> Listings => _listings.AsReadOnly();
 
   public string Name { get; private set; } = null!;
-  public int Year { get; private set; }
-  public int Month { get; private set; }
-  public int Week { get; private set; }
+  public DateOnly StartDate { get; private set; }
+  public DateOnly EndDate { get; private set; }
 
-  public static Plan Create(string? name, int year, int month, int week) {
+  public static Plan Create(string? name, DateOnly startDate, DateOnly endDate) {
     var plan = new Plan {
-      Name = name ?? $"Lịch chiếu Tháng {month} tuần {week} Năm {year}.",
-      Year = year,
-      Month = month,
-      Week = week
+      Name = name ?? $"Lịch chiếu từ {startDate} - {endDate}.",
+      StartDate = startDate,
+      EndDate = endDate
     };
     return plan;
   }
 
-  public Plan Update(string? name, int year, int month, int week) {
-    Name = name ?? $"Lịch chiếu Tháng {month} tuần {week} Năm {year}.";
-    Year = year;
-    Month = month;
-    Week = week;
+  public Plan Update(string? name, DateOnly startDate, DateOnly endDate) {
+    Name = name ?? $"Lịch chiếu từ {startDate} - {endDate}.";
+    StartDate = startDate;
+    EndDate = endDate;
     return this;
   }
 
@@ -50,11 +47,6 @@ public class Plan : BaseEntity {
     }
 
     Status = PlanStatus.Published;
-    AddDomainEvent(new PlanPublishedEvent(
-      Id,
-      Listings.Select(l => l.Id).ToList(),
-      Listings.Select(l => l.MovieId).ToList())
-    );
   }
 
   public void Cancel() {

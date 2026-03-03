@@ -5,7 +5,7 @@ namespace Mv.Application.DTOs;
 public record ShowtimeDto(
   Guid Id,
   Guid AuditoriumId,
-  DayOfWeek DayOfWeek,
+  DateOnly Date,
   TimeSpan StartAt,
   TimeSpan EndAt
 ) : IdDto(Id);

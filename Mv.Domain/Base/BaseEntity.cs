@@ -7,9 +7,11 @@ namespace Domain.Base;
 public class BaseEntity : IHasDomainEvent {
   private readonly List<DomainEvent> _domainEvents = [];
   public Guid Id { get; private init; } = Guid.NewGuid();
-  public DateTime CreatedAt { get; private init; } = DateTime.Now;
+  public DateTime CreatedAt { get; private init; } = DateTime.UtcNow;
   public DateTime? DeletedAt { get; private set; }
   public bool IsDeleted { get; private set; }
+  [JsonIgnore] public uint RowVersion { get; set; }
+
   [NotMapped] [JsonIgnore] public IReadOnlyCollection<DomainEvent> DomainEvents => _domainEvents.AsReadOnly();
 
   public void AddDomainEvent(DomainEvent domainEvent) {
@@ -22,7 +24,7 @@ public class BaseEntity : IHasDomainEvent {
 
   public void Delete() {
     IsDeleted = true;
-    DeletedAt = DateTime.Now;
+    DeletedAt = DateTime.UtcNow;
   }
 
   public void Restore() {
