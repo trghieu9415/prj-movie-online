@@ -3,7 +3,9 @@ using Medallion.Threading.Redis;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Mv.Application.Ports.Cache;
 using Mv.Application.Ports.Concurrency;
+using Mv.Infrastructure.Adapters.Cache;
 using Mv.Infrastructure.Adapters.Concurrency;
 using Mv.Infrastructure.Configs.Options;
 using Mv.Infrastructure.Services;
@@ -24,6 +26,7 @@ public static class DistributedExtensions {
       });
     services.AddStackExchangeRedisCache(_ => {});
     services.AddScoped<ICacheService, RedisCacheService>();
+    services.AddScoped<IBusinessCache, BusinessCache>();
 
     // Redis Connection (Multiplexer for Locking)
     services.AddSingleton<IConnectionMultiplexer>(serviceProvider => {

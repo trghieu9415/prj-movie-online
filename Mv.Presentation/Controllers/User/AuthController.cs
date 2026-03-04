@@ -19,8 +19,9 @@ public class AuthController : UserController {
   }
 
   [HttpPost("login")]
-  public async Task<IActionResult> Login(LoginCommand command) {
-    return AppResponse.Success(await Mediator.Send(command with { Role = UserRole.Customer }));
+  public async Task<IActionResult> Login([FromForm] string email, [FromForm] string password) {
+    var command = new LoginCommand(email, password, UserRole.Customer);
+    return AppResponse.Success(await Mediator.Send(command));
   }
 
   [HttpPost("refresh-token")]

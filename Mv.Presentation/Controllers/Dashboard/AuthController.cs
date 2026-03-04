@@ -12,8 +12,9 @@ namespace Mv.Presentation.Controllers.Dashboard;
 public class AuthController : DashboardController {
   [AllowAnonymous]
   [HttpPost("login")]
-  public async Task<IActionResult> Login(LoginCommand command) {
-    return AppResponse.Success(await Mediator.Send(command with { Role = UserRole.Admin }));
+  public async Task<IActionResult> Login([FromForm] string email, [FromForm] string password) {
+    var command = new LoginCommand(email, password, UserRole.Admin);
+    return AppResponse.Success(await Mediator.Send(command));
   }
 
   [AllowAnonymous]

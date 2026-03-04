@@ -8,8 +8,8 @@ public class SchedulingProfile : Profile {
   public SchedulingProfile() {
     CreateMap<Showtime, ShowtimeDto>();
     CreateMap<Listing, ListingDto>()
-      .ForMember(dest => dest.Movie, opt => opt.Ignore())
-      .ForMember(dest => dest.Showtimes, opt => opt.MapFrom(src => src.Showtimes));
+      .ForMember(dest => dest.Movie, opt => opt.MapFrom(src => new MovieDto { Id = src.MovieId }))
+      .ForMember(dest => dest.Showtimes, opt => opt.ExplicitExpansion());
     CreateMap<Plan, PlanDto>()
       .ForMember(dest => dest.Listings, opt => opt.MapFrom(src => src.Listings));
   }

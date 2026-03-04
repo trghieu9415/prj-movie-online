@@ -2,4 +2,7 @@
 
 namespace Mv.Application.DTOs;
 
-public record AuditoriumDto(Guid Id, string Name, List<SeatDto> Seats) : IdDto(Id);
+public record AuditoriumDto : IdDto {
+  public string Name { get; init; } = null!;
+  public List<SeatDto> Seats { get; init; } = [];
+}

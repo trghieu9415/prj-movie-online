@@ -2,4 +2,8 @@
 
 namespace Mv.Application.DTOs;
 
-public record MovieDto(Guid Id, string Name, int Duration, string PosterUrl) : IdDto(Id);
+public record MovieDto : IdDto {
+  public string Name { get; init; } = null!;
+  public int Duration { get; init; }
+  public string PosterUrl { get; init; } = null!;
+}

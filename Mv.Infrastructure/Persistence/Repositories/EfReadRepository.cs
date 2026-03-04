@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Collections;
+using System.Linq.Expressions;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Domain.Base;
@@ -14,21 +15,29 @@ public class EfReadRepository<TEntity, TDto>(
 ) : IReadRepository<TEntity, TDto>
   where TEntity : BaseEntity
   where TDto : IdDto {
+  private static readonly string[] AllExpandableProperties = typeof(TDto).GetProperties()
+    .Where(p =>
+      (p.PropertyType.IsClass && p.PropertyType != typeof(string)) ||
+      typeof(IEnumerable).IsAssignableFrom(p.PropertyType))
+    .Select(p => p.Name)
+    .ToArray();
+
   protected readonly AppDbContext DbContext = dbContext;
   protected readonly DbSet<TEntity> DbSet = dbContext.Set<TEntity>();
-  protected readonly IMapper Mapper = mapper;
 
   public virtual async Task<TDto?> GetByIdAsync(Guid id, CancellationToken ct = default) {
     return await DbSet
       .AsNoTracking()
       .Where(x => x.Id == id && !x.IsDeleted)
-      .ProjectTo<TDto>(Mapper.ConfigurationProvider)
+      .ProjectTo<TDto>(mapper.ConfigurationProvider, null, AllExpandableProperties)
       .FirstOrDefaultAsync(ct);
   }
 
   public virtual async Task<(int total, List<TDto> entities)> GetAsync(
     Expression<Func<TEntity, bool>>? criteria = null,
-    List<Expression<Func<TEntity, object>>>? includes = null,
+    string[]? expands = null,
+    int? page = null,
+    int? pageSize = null,
     CancellationToken ct = default
   ) {
     var query = DbSet.AsNoTracking().Where(x => !x.IsDeleted);
@@ -37,19 +46,28 @@ public class EfReadRepository<TEntity, TDto>(
       query = query.Where(criteria);
     }
 
-    if (includes != null) {
-      query = includes.Aggregate(query, (current, include) => current.Include(include));
+    var total = await query.CountAsync(ct);
+
+    if (page.HasValue && pageSize.HasValue) {
+      var validPage = Math.Max(1, page.Value);
+      var validPageSize = Math.Max(1, pageSize.Value);
+
+      var skip = (validPage - 1) * validPageSize;
+      query = query.Skip(skip).Take(validPageSize);
     }
 
-    var total = await query.CountAsync(ct);
-    var entities = await query.ProjectTo<TDto>(Mapper.ConfigurationProvider).ToListAsync(ct);
+    var entities = await query
+      .ProjectTo<TDto>(mapper.ConfigurationProvider, null, expands ?? [])
+      .ToListAsync(ct);
 
     return (total, entities);
   }
 
   public virtual async Task<(int total, List<TDto> entities)> GetDeletedAsync(
     Expression<Func<TEntity, bool>>? criteria = null,
-    List<Expression<Func<TEntity, object>>>? includes = null,
+    string[]? expands = null,
+    int? page = null,
+    int? pageSize = null,
     CancellationToken ct = default
   ) {
     var query = DbSet.AsNoTracking().Where(x => x.IsDeleted);
@@ -58,12 +76,19 @@ public class EfReadRepository<TEntity, TDto>(
       query = query.Where(criteria);
     }
 
-    if (includes != null) {
-      query = includes.Aggregate(query, (current, include) => current.Include(include));
+    var total = await query.CountAsync(ct);
+
+    if (page.HasValue && pageSize.HasValue) {
+      var validPage = Math.Max(1, page.Value);
+      var validPageSize = Math.Max(1, pageSize.Value);
+
+      var skip = (validPage - 1) * validPageSize;
+      query = query.Skip(skip).Take(validPageSize);
     }
 
-    var total = await query.CountAsync(ct);
-    var entities = await query.ProjectTo<TDto>(Mapper.ConfigurationProvider).ToListAsync(ct);
+    var entities = await query
+      .ProjectTo<TDto>(mapper.ConfigurationProvider, null, expands ?? [])
+      .ToListAsync(ct);
 
     return (total, entities);
   }

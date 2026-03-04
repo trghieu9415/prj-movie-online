@@ -20,6 +20,7 @@ public class AuditoriumController : DashboardController {
     return AppResponse.Success(await Mediator.Send(new GetAuditoriumQuery(id)));
   }
 
+  [HttpPost]
   public async Task<IActionResult> Create(AddAuditoriumCommand command) {
     return AppResponse.Success(await Mediator.Send(command));
   }

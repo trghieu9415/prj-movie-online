@@ -18,9 +18,10 @@ if (!args.Contains("--seeding") && !EF.IsDesignTime) {
 }
 
 // --- Presentation Extension ---
-builder.Services.AddPresentationInfrastructure();
-builder.Services.AddWebFramework();
+builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddWebApiDefaults();
 builder.Services.AddSwaggerDocument();
+builder.Services.AddSignalRAdapters();
 builder.AddSerilogCustom();
 
 builder.Services.AddHttpContextAccessor();

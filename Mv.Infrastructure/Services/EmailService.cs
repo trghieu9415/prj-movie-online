@@ -12,50 +12,54 @@ public class EmailService(
   ILogger<EmailService> logger
 ) : IEmailService {
   public async Task SendOrderConfirmationEmailAsync(string email, string orderId, CancellationToken ct = default) {
-    var subject = $"Xác nhận đơn hàng #{orderId} thành công";
+    var subject = $"[Movie Online] Xác nhận đơn hàng #{orderId}";
 
-    var htmlBody =
-      $"""
-        <div style='font-family: Arial, sans-serif; padding: 20px;'>
-          <h2>Cảm ơn bạn đã đặt hàng!</h2>
-          <p>Đơn hàng mã số <strong>{orderId}</strong> của bạn đã được xác nhận.</p>
-          <p>Chúng tôi sẽ sớm cập nhật trạng thái vận chuyển đến bạn.</p>
-       </div>
-       """;
+    var placeholders = new Dictionary<string, string> {
+      { "OrderId", orderId }
+    };
 
-    await SendEmailAsync(email, subject, htmlBody, ct);
+    var body = await GetEmailTemplateAsync("OrderConfirmation.html", placeholders);
+    await SendEmailAsync(email, subject, body, ct);
   }
 
   public async Task SendResetPasswordEmailAsync(string email, string token, CancellationToken ct = default) {
-    const string subject = "Yêu cầu khôi phục mật khẩu";
+    const string subject = "[Movie Online] Khôi phục mật khẩu của bạn";
 
-    var resetLink = $"https://sgu-bidding.local/reset-password?token={token}&email={email}";
+    // TODO: Thay đổi theo Link FrontEnd
+    var resetLink = $"https://movie-online.com/reset-password?token={token}&email={email}";
 
-    var htmlBody =
-      $"""
-       <div style='font-family: Arial, sans-serif; padding: 20px;'>
-         <h2>Khôi phục mật khẩu</h2>
-         <p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn.</p>
-          <p>Vui lòng click vào nút bên dưới để tiến hành:</p>
-         <a href='{resetLink}' style='display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;'>Đặt lại mật khẩu</a>
-         <p>Link này sẽ hết hạn sau 15 phút.</p>
-       </div>
-       """;
+    var placeholders = new Dictionary<string, string> {
+      { "ResetLink", resetLink }
+    };
 
-    await SendEmailAsync(email, subject, htmlBody, ct);
+    var body = await GetEmailTemplateAsync("ResetPassword.html", placeholders);
+    await SendEmailAsync(email, subject, body, ct);
   }
 
-  // NOTE: ========== [Helper] ==========
-  private async Task SendEmailAsync(string email, string subject, string body, CancellationToken ct = default) {
+  // NOTE: ========== [Helpers để đọc Template] ==========
+  private static async Task<string> GetEmailTemplateAsync(string fileName, Dictionary<string, string> placeholders) {
+    var path = Path.Combine(AppContext.BaseDirectory, "Templates", "Email", fileName);
+
+    if (!File.Exists(path)) {
+      throw new FileNotFoundException($"Không tìm thấy template email: {fileName}");
+    }
+
+    var template = await File.ReadAllTextAsync(path);
+    return placeholders.Aggregate(template, (current, item) => current.Replace($"{{{{{item.Key}}}}}", item.Value));
+  }
+
+  private async Task SendEmailAsync(string email, string subject, string htmlBody, CancellationToken ct = default) {
     try {
       var message = new MimeMessage();
       message.From.Add(new MailboxAddress(options.FromName, options.FromAddress));
       message.To.Add(MailboxAddress.Parse(email));
       message.Subject = subject;
 
-      message.Body = new BodyBuilder { HtmlBody = body }.ToMessageBody();
+      message.Body = new BodyBuilder { HtmlBody = htmlBody }.ToMessageBody();
 
       using var client = new SmtpClient();
+      client.ServerCertificateValidationCallback = (_, _, _, _) => true;
+
       await client.ConnectAsync(options.Host, options.Port,
         options.EnableSsl ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.Auto, ct);
 
@@ -66,10 +70,9 @@ public class EmailService(
       await client.SendAsync(message, ct);
       await client.DisconnectAsync(true, ct);
 
-      logger.LogInformation("Đã gửi email thành công đến {Email}", email);
+      logger.LogInformation("Gửi email thành công tới: {Email}", email);
     } catch (Exception ex) {
-      logger.LogError(ex, "Lỗi khi gửi email đến {Email}", email);
-      throw;
+      logger.LogError(ex, "Lỗi nghiêm trọng khi gửi email tới {Email}", email);
     }
   }
 }

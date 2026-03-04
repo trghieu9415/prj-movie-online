@@ -12,7 +12,13 @@ public class GetHistoryHandler(
   ICurrentUser currentUser
 ) : IRequestHandler<GetHistoryQuery, GetHistoryResult> {
   public async Task<GetHistoryResult> Handle(GetHistoryQuery request, CancellationToken ct) {
-    var (total, orderDtos) = await orderReadRepository.GetAsync(x => x.CustomerId == currentUser.Id, null, ct);
+    var (total, orderDtos) = await orderReadRepository.GetAsync(
+      x => x.CustomerId == currentUser.Id,
+      null,
+      request.Page,
+      request.PageSize,
+      ct
+    );
     var meta = Meta.Create(request.Page, request.PageSize, total);
     return new GetHistoryResult(orderDtos, meta);
   }

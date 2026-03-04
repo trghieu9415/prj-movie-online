@@ -12,9 +12,9 @@ public class JwtService(JwtOptions jwtOptions) : IJwtService {
   public TokenModel GenerateAccessToken(User user) {
     var claims = new List<Claim> {
       new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+      new(ClaimTypes.Name, user.FullName ?? ""),
       new(ClaimTypes.Email, user.Email),
-      new(ClaimTypes.Name, user.FullName),
-      new(ClaimTypes.Role, nameof(user.Role)),
+      new(ClaimTypes.Role, user.Role.ToString()),
       new("security_stamp", user.SecurityStamp ?? ""),
       new("token_type", "access"),
       new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
@@ -38,42 +38,39 @@ public class JwtService(JwtOptions jwtOptions) : IJwtService {
     }
 
     var tokenHandler = new JwtSecurityTokenHandler();
-    var key = Encoding.UTF8.GetBytes(jwtOptions.Secret!);
-
     try {
-      var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = true,
-        ValidIssuer = jwtOptions.Issuer,
-        ValidateAudience = true,
-        ValidAudience = jwtOptions.Audience,
-        ClockSkew = TimeSpan.Zero
-      }, out _);
-
-      return principal;
+      return tokenHandler.ValidateToken(token, GetValidationParameters(jwtOptions), out _);
     } catch {
       return null;
     }
   }
 
-  // NOTE: ========== [Helpers] ==========
   private TokenModel GenerateToken(IEnumerable<Claim> claims, int expirationMinutes) {
     var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret));
-    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
     var expiry = DateTime.UtcNow.AddMinutes(expirationMinutes);
-
     var token = new JwtSecurityToken(
       jwtOptions.Issuer,
       jwtOptions.Audience,
       claims,
       expires: expiry,
-      signingCredentials: creds
+      signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
     );
-
     return new TokenModel {
       Token = new JwtSecurityTokenHandler().WriteToken(token),
       ExpiredAt = expiry
+    };
+  }
+
+  public static TokenValidationParameters GetValidationParameters(JwtOptions jwtOptions) {
+    return new TokenValidationParameters {
+      ValidateIssuerSigningKey = true,
+      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret)),
+      ValidateIssuer = true,
+      ValidIssuer = jwtOptions.Issuer,
+      ValidateAudience = true,
+      ValidAudience = jwtOptions.Audience,
+      ValidateLifetime = true,
+      ClockSkew = TimeSpan.Zero
     };
   }
 }

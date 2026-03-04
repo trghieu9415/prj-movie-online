@@ -39,6 +39,7 @@ public static class PersistenceExtensions {
     services.AddScoped(typeof(IReadRepository<,>), typeof(EfReadRepository<,>));
     services.AddScoped<IPlanReadRepository, PlanReadRepository>();
     services.AddScoped<IListingReadRepository, ListingReadRepository>();
+    services.AddScoped<IShowtimeReadRepository, ShowtimeReadRepository>();
 
     // Seeding
     services.AddScoped<DbInitializer>();

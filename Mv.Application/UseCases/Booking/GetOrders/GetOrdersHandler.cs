@@ -18,7 +18,7 @@ public class GetOrdersHandler(
     }
 
     var (total, orderDtos) = await orderReadRepository.GetAsync(
-      null, null, ct
+      page: request.Page, pageSize: request.PageSize, ct: ct
     );
 
     var meta = Meta.Create(request.Page, request.PageSize, total);

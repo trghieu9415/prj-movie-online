@@ -2,10 +2,9 @@
 
 namespace Mv.Application.DTOs;
 
-public record PlanDto(
-  Guid Id,
-  string Name,
-  DateOnly StartDate,
-  DateOnly EndDate,
-  List<ListingDto> Listings
-) : IdDto(Id);
+public record PlanDto : IdDto {
+  public string Name { get; init; } = null!;
+  public DateOnly StartDate { get; init; }
+  public DateOnly EndDate { get; init; }
+  public List<ListingDto> Listings { get; init; } = [];
+}

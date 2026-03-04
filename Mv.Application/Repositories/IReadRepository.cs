@@ -9,18 +9,22 @@ public interface IReadRepository<TEntity, TDto>
   where TDto : IdDto {
   Task<TDto?> GetByIdAsync(
     Guid id,
-    CancellationToken ct = default
+    CancellationToken ct
   );
 
   Task<(int total, List<TDto> entities)> GetAsync(
     Expression<Func<TEntity, bool>>? criteria = null,
-    List<Expression<Func<TEntity, object>>>? includes = null,
+    string[]? expands = null,
+    int? page = null,
+    int? pageSize = null,
     CancellationToken ct = default
   );
 
   Task<(int total, List<TDto> entities)> GetDeletedAsync(
     Expression<Func<TEntity, bool>>? criteria = null,
-    List<Expression<Func<TEntity, object>>>? includes = null,
+    string[]? expands = null,
+    int? page = null,
+    int? pageSize = null,
     CancellationToken ct = default
   );
 }

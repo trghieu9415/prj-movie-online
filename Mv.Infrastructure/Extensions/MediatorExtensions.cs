@@ -20,7 +20,7 @@ public static class MediatorExtensions {
     });
 
     services.AddValidatorsFromAssembly(applicationAssembly);
-    services.AddScoped(typeof(IAppLogger<>), typeof(LoggerAdapter<>));
+    services.AddSingleton(typeof(IAppLogger<>), typeof(LoggerAdapter<>));
     return services;
   }
 }

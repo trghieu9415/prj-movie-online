@@ -34,14 +34,12 @@ public class Listing : BaseEntity {
       } else {
         // Existing ID, update it
         var existing = _showtimes.FirstOrDefault(s => s.Id == incoming.Id.Value);
-        if (existing != null) {
-          existing.Update(
-            incoming.AuditoriumId,
-            incoming.Date,
-            incoming.StartAt,
-            incoming.EndAt
-          );
-        }
+        existing?.Update(
+          incoming.AuditoriumId,
+          incoming.Date,
+          incoming.StartAt,
+          incoming.EndAt
+        );
       }
     }
   }

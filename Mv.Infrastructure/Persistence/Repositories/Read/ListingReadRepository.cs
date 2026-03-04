@@ -13,15 +13,24 @@ public class ListingReadRepository(AppDbContext dbContext, IMapper mapper)
 
     var listingDto = await DbSet.AsNoTracking()
       .Where(x => x.Id == id && !x.IsDeleted)
-      .Select(l => new ListingDto(
-        l.Id, movies.Where(m => m.Id == l.MovieId && !m.IsDeleted)
-          .Select(m => new MovieDto(m.Id, m.Name, m.Duration, m.PosterUrl))
+      .Select(l => new ListingDto {
+        Id = l.Id,
+        Movie = movies.Where(m => m.Id == l.MovieId && !m.IsDeleted)
+          .Select(m => new MovieDto {
+            Id = m.Id,
+            Name = m.Name,
+            Duration = m.Duration,
+            PosterUrl = m.PosterUrl
+          })
           .FirstOrDefault(),
-        l.Showtimes.Where(s => !s.IsDeleted).Select(s => new ShowtimeDto(
-          s.Id, s.AuditoriumId, s.Date, s.StartAt, s.EndAt
-        )).ToList()
-      ))
-      .FirstOrDefaultAsync(ct);
+        Showtimes = l.Showtimes.Where(s => !s.IsDeleted).Select(s => new ShowtimeDto {
+          Id = s.Id,
+          AuditoriumId = s.AuditoriumId,
+          Date = s.Date,
+          StartAt = s.StartAt,
+          EndAt = s.EndAt
+        }).ToList()
+      }).FirstOrDefaultAsync(ct);
 
     return listingDto;
   }
