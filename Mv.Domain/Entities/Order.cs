@@ -14,6 +14,8 @@ public class Order : BaseEntity {
   public Guid ShowtimeId { get; private set; }
   public string AuditoriumName { get; private set; } = null!;
 
+  public MovieSnapshot Movie { get; private set; } = null!;
+
 
   public OrderStatus Status { get; private set; } = OrderStatus.Pending;
   public decimal TotalPrice { get; private set; }
@@ -22,13 +24,15 @@ public class Order : BaseEntity {
   public static Order Create(
     Guid customerId, string customerName,
     Guid showtimeId, string auditoriumName,
+    MovieSnapshot movie,
     ICollection<SeatSnapshot> seatSnapshots
   ) {
     var order = new Order {
       CustomerId = customerId,
       CustomerName = customerName,
       ShowtimeId = showtimeId,
-      AuditoriumName = auditoriumName
+      AuditoriumName = auditoriumName,
+      Movie = movie
     };
     order.SyncTickets(seatSnapshots);
     order.AddDomainEvent(new OrderPlacedEvent(

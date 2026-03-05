@@ -1,0 +1,86 @@
+﻿using Domain.Entities;
+using Mv.Application.Ports.Gateway;
+using Mv.Infrastructure.Configs.Options;
+using Stripe;
+using Stripe.Checkout;
+
+namespace Mv.Infrastructure.Adapters.Gateway.Transaction;
+
+public class StripeGateway : IPaymentGateway {
+  private readonly string _cancelUrl;
+  private readonly string _successUrl;
+
+  public StripeGateway(StripeOptions options) {
+    StripeConfiguration.ApiKey = options.SecretKey;
+    _successUrl = options.SuccessUrl;
+    _cancelUrl = options.CancelUrl;
+  }
+
+  public string CreatePaymentUrl(Payment payment, Order order) {
+    var options = new SessionCreateOptions {
+      PaymentMethodTypes = ["card"],
+      LineItems = [
+        new SessionLineItemOptions {
+          PriceData = new SessionLineItemPriceDataOptions {
+            UnitAmount = (long)(payment.Amount * 100),
+            Currency = "usd",
+            ProductData = new SessionLineItemPriceDataProductDataOptions {
+              Name = $"Thanh toán vé phim {order.Movie.Name}",
+              Description = $"Các ghế: {string.Join(", ",
+                order.Tickets.Select(t => $"{t.SeatSnapshot.Row}{t.SeatSnapshot.Number}"))}",
+              Images = [order.Movie.PosterUrl]
+            }
+          },
+          Quantity = 1
+        }
+      ],
+      Mode = "payment",
+      SuccessUrl = $"{_successUrl}?session_id={{CHECKOUT_SESSION_ID}}",
+      CancelUrl = _cancelUrl
+    };
+
+    var service = new SessionService();
+    var session = service.Create(options);
+    return session.Url;
+  }
+
+
+  public (bool isSucceed, string transactionId) VerifyPayment(GatewayPayload payload) {
+    if (payload is not StripeGatewayPayload stripePayload) {
+      return (false, string.Empty);
+    }
+
+    try {
+      var service = new SessionService();
+      var session = service.Get(stripePayload.SessionId);
+
+      if (session.PaymentStatus == "paid") {
+        return (true, session.PaymentIntentId);
+      }
+    } catch {
+      return (false, string.Empty);
+    }
+
+    return (false, string.Empty);
+  }
+
+  public bool RefundPayment(Payment payment) {
+    var options = new RefundCreateOptions {
+      PaymentIntent = payment.TransactionId
+    };
+    var service = new RefundService();
+    try {
+      service.Create(options);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+
+  public GatewayPayload ToGatewayPayload(object data) {
+    return new StripeGatewayPayload(data.ToString() ?? string.Empty);
+  }
+}
+
+public record StripeGatewayPayload(string SessionId) : GatewayPayload;

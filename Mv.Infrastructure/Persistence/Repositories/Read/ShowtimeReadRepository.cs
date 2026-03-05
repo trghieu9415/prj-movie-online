@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;
+using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Mv.Application.DTOs;
 using Mv.Application.Repositories.Read;
@@ -21,5 +22,35 @@ public class ShowtimeReadRepository(
       .ToListAsync(ct);
 
     return lockedSeatIds;
+  }
+
+  public async Task<(MovieSnapshot movie, string auditoriumName)?> GetMovieAndAuditoriumAsync(
+    Guid id,
+    CancellationToken ct = default
+  ) {
+    var result = await DbContext.Set<Listing>()
+      .AsNoTracking()
+      .SelectMany(l => l.Showtimes, (l, s) => new { l, s })
+      .Where(x => x.s.Id == id && !x.s.IsDeleted)
+      .Select(x => new {
+        Movie = DbContext.Set<Movie>()
+          .Where(m => m.Id == x.l.MovieId)
+          .Select(m => new MovieSnapshot {
+            Id = m.Id,
+            Name = m.Name,
+            PosterUrl = m.PosterUrl
+          })
+          .FirstOrDefault(),
+        AuditoriumName = DbContext.Set<Auditorium>()
+          .Where(a => a.Id == x.s.AuditoriumId)
+          .Select(a => a.Name)
+          .FirstOrDefault()
+      }).FirstOrDefaultAsync(ct);
+
+    if (result?.Movie == null || result.AuditoriumName == null) {
+      return null;
+    }
+
+    return (result.Movie, result.AuditoriumName);
   }
 }

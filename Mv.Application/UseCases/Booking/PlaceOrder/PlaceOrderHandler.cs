@@ -3,14 +3,14 @@ using MediatR;
 using Mv.Application.Exceptions;
 using Mv.Application.Ports.Security;
 using Mv.Application.Repositories;
+using Mv.Application.Repositories.Read;
 
 namespace Mv.Application.UseCases.Booking.PlaceOrder;
 
 public class PlaceOrderHandler(
   IRepository<Order> orderRepository,
-  IRepository<Showtime> showtimeRepository,
-  IRepository<Auditorium> auditoriumRepository,
-  IRepository<Seat> seatRepository,
+  IShowtimeReadRepository showtimeRepository,
+  ISeatReadRepository seatRepository,
   ICurrentUser currentUser
 ) : IRequestHandler<PlaceOrderCommand, Guid> {
   public async Task<Guid> Handle(PlaceOrderCommand request, CancellationToken ct) {
@@ -18,27 +18,25 @@ public class PlaceOrderHandler(
       await showtimeRepository.GetByIdAsync(request.ShowtimeId, ct)
       ?? throw new WorkflowException($"Suất chiếu không tồn tại - Id: {request.ShowtimeId}", 404);
 
-    var auditorium =
-      await auditoriumRepository.GetByIdAsync(showtime.AuditoriumId, ct)
-      ?? throw new Exception(
-        $"Rạp phim không tồn tại - ShowtimeId: {showtime.Id} / AuditoriumId: {showtime.AuditoriumId}"
-      );
+    var validSeats = await seatRepository.GetValidSeatsForShowtimeAsync(
+      request.SeatIds, request.ShowtimeId, ct
+    );
 
-    if (request.SeatIds.Any(seatId => auditorium.Seats.All(s => s.Id != seatId))) {
-      throw new WorkflowException($"Ghế không tồn tại trong rạp {auditorium.Name}");
+    if (validSeats.Count != request.SeatIds.Count) {
+      throw new WorkflowException("Tồn tại ghế không phù hợp");
     }
 
-    var seats = await seatRepository.GetByKeysAsync(request.SeatIds, null, ct);
-    if (seats.Count != request.SeatIds.Count) {
-      throw new WorkflowException("Một số ghế bạn chọn không tồn tại");
-    }
+    var (movie, auditoriumName) =
+      await showtimeRepository.GetMovieAndAuditoriumAsync(showtime.Id, ct)
+      ?? throw new WorkflowException("Suất chiếu chứa phim không tồn tại");
 
     var order = Order.Create(
       currentUser.Id,
       currentUser.FullName,
       showtime.Id,
-      auditorium.Name,
-      seats.Select(s => s.ToSnapshot()).ToList()
+      auditoriumName,
+      movie,
+      validSeats
     );
 
     await orderRepository.CreateAsync(order, ct);

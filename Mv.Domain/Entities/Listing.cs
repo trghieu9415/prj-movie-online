@@ -26,6 +26,7 @@ public class Listing : BaseEntity {
       if (!incoming.Id.HasValue) {
         // Null ID means add new
         _showtimes.Add(Showtime.Create(
+          this,
           incoming.AuditoriumId,
           incoming.Date,
           incoming.StartAt,

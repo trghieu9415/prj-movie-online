@@ -1,10 +1,11 @@
 ﻿using Domain.Enums;
+using Microsoft.Extensions.DependencyInjection;
 using Mv.Application.Ports.Gateway;
 
 namespace Mv.Infrastructure.Adapters.Gateway;
 
-public class GatewayFactory : IGatewayFactory {
+public class GatewayFactory(IServiceProvider serviceProvider) : IGatewayFactory {
   public IPaymentGateway CreatePaymentGateway(PaymentMethod method) {
-    throw new NotImplementedException();
+    return serviceProvider.GetRequiredKeyedService<IPaymentGateway>(method);
   }
 }

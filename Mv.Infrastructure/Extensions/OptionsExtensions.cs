@@ -15,6 +15,9 @@ public static class OptionsExtensions {
     services.RegisterOption<RedisOptions>(config);
     services.RegisterOption<EmailOptions>(config);
     services.RegisterOption<RabbitMqOptions>(config);
+    services.RegisterOption<S3Options>(config);
+    services.RegisterOption<StripeOptions>(config);
+    services.RegisterOption<PayPalOptions>(config);
 
     return services;
   }

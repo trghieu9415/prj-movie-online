@@ -10,6 +10,7 @@ public class Showtime : BaseEntity {
   public TimeSpan EndAt { get; private set; }
 
   public static Showtime Create(
+    Listing listing,
     Guid auditoriumId,
     DateOnly date, TimeSpan startAt, TimeSpan endAt
   ) {

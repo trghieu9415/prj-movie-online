@@ -24,7 +24,7 @@ public class CreatePaymentHandler(
 
     var payment = Payment.Create(order.Id, order.TotalPrice, request.Method);
     var paymentGateway = gatewayFactory.CreatePaymentGateway(request.Method);
-    var paymentUrl = paymentGateway.CreatePaymentUrl(payment);
+    var paymentUrl = paymentGateway.CreatePaymentUrl(payment, order);
 
     await paymentRepository.CreateAsync(payment, ct);
     return new CreatePaymentResult(payment.Id, paymentUrl);
