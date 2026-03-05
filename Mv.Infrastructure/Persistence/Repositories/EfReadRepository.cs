@@ -33,9 +33,9 @@ public class EfReadRepository<TEntity, TDto>(
       .FirstOrDefaultAsync(ct);
   }
 
-  public virtual async Task<(int total, List<TDto> entities)> GetAsync(
+  public async Task<(int total, List<TDto> entities)> GetAsync(
     Expression<Func<TEntity, bool>>? criteria = null,
-    string[]? expands = null,
+    List<Expression<Func<TEntity, object>>>? includes = null,
     int? page = null,
     int? pageSize = null,
     CancellationToken ct = default
@@ -48,46 +48,23 @@ public class EfReadRepository<TEntity, TDto>(
 
     var total = await query.CountAsync(ct);
 
+    if (includes != null && includes.Count != 0) {
+      query = includes.Aggregate(query, (current, include) => current.Include(include));
+    }
+
+    query = query.OrderByDescending(x => x.CreatedAt);
+
     if (page.HasValue && pageSize.HasValue) {
-      var validPage = Math.Max(1, page.Value);
       var validPageSize = Math.Max(1, pageSize.Value);
+      var totalPages = (total + validPageSize - 1) / validPageSize;
+      var validPage = Math.Max(1, totalPages);
 
       var skip = (validPage - 1) * validPageSize;
       query = query.Skip(skip).Take(validPageSize);
     }
 
     var entities = await query
-      .ProjectTo<TDto>(mapper.ConfigurationProvider, null, expands ?? [])
-      .ToListAsync(ct);
-
-    return (total, entities);
-  }
-
-  public virtual async Task<(int total, List<TDto> entities)> GetDeletedAsync(
-    Expression<Func<TEntity, bool>>? criteria = null,
-    string[]? expands = null,
-    int? page = null,
-    int? pageSize = null,
-    CancellationToken ct = default
-  ) {
-    var query = DbSet.AsNoTracking().Where(x => x.IsDeleted);
-
-    if (criteria != null) {
-      query = query.Where(criteria);
-    }
-
-    var total = await query.CountAsync(ct);
-
-    if (page.HasValue && pageSize.HasValue) {
-      var validPage = Math.Max(1, page.Value);
-      var validPageSize = Math.Max(1, pageSize.Value);
-
-      var skip = (validPage - 1) * validPageSize;
-      query = query.Skip(skip).Take(validPageSize);
-    }
-
-    var entities = await query
-      .ProjectTo<TDto>(mapper.ConfigurationProvider, null, expands ?? [])
+      .ProjectTo<TDto>(mapper.ConfigurationProvider)
       .ToListAsync(ct);
 
     return (total, entities);

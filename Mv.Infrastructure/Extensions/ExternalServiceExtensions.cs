@@ -1,6 +1,7 @@
 ﻿using Domain.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Mv.Application.Ports.Gateway;
+using Mv.Infrastructure.Adapters.Gateway;
 using Mv.Infrastructure.Adapters.Gateway.Transaction;
 using Mv.Infrastructure.Services;
 using Mv.Infrastructure.Services.Abstractions;
@@ -14,6 +15,7 @@ public static class ExternalServiceExtensions {
 
     // Transactions
     services.AddHttpClient();
+    services.AddScoped<IGatewayFactory, GatewayFactory>();
     services.AddKeyedScoped<IPaymentGateway, StripeGateway>(PaymentMethod.Stripe);
     services.AddKeyedScoped<IPaymentGateway, PaypalGateway>(PaymentMethod.Paypal);
 

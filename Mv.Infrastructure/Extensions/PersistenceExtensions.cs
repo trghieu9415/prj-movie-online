@@ -40,6 +40,7 @@ public static class PersistenceExtensions {
     services.AddScoped<IPlanReadRepository, PlanReadRepository>();
     services.AddScoped<IListingReadRepository, ListingReadRepository>();
     services.AddScoped<IShowtimeReadRepository, ShowtimeReadRepository>();
+    services.AddScoped<ISeatReadRepository, SeatReadRepository>();
 
     // Seeding
     services.AddScoped<DbInitializer>();

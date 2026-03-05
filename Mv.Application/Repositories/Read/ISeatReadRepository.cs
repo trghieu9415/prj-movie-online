@@ -7,7 +7,7 @@ namespace Mv.Application.Repositories.Read;
 public interface ISeatReadRepository : IReadRepository<Seat, SeatDto> {
   Task<List<SeatSnapshot>> GetValidSeatsForShowtimeAsync(
     List<Guid> seatIds,
-    Guid auditoriumId,
+    Guid showtimeId,
     CancellationToken ct = default
   );
 }

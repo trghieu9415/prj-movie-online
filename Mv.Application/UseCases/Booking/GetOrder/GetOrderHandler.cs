@@ -18,6 +18,7 @@ public class GetOrderHandler(
       await orderReadRepository.GetByIdAsync(request.Id, ct)
       ?? throw new WorkflowException(errorMessage, 404);
 
+
     if (orderDto.CustomerId != currentUser.Id && currentUser.Role != UserRole.Admin) {
       throw new WorkflowException(errorMessage, 403);
     }

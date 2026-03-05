@@ -15,6 +15,8 @@ public record Meta(
     total = total < 1 ? 1 : total;
 
     var totalPages = (total + pageSize - 1) / pageSize;
+
+    page = Math.Min(page, totalPages);
     var hasPagination = totalPages > 1;
     var hasPreviousPage = hasPagination && page > 1;
     var hasNextPage = hasPagination && page != totalPages;

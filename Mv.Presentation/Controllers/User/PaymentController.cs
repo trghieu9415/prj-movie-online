@@ -14,14 +14,9 @@ public class PaymentController : UserController {
     return AppResponse.Success(paymentUrl);
   }
 
-
   [HttpPost("{id:guid}/verify")]
-  public async Task<IActionResult>
-    VerifyPayment(Guid id, [FromBody] VerifyPaymentRequest request, CancellationToken ct) {
-    var command = new ProcessPaymentCommand(id, request.Payload);
-    var isSuccess = await Mediator.Send(command, ct);
+  public async Task<IActionResult> VerifyPayment(Guid id, [FromBody] ProcessPaymentCommand command) {
+    var isSuccess = await Mediator.Send(command);
     return AppResponse.Success(isSuccess);
   }
 }
-
-public record VerifyPaymentRequest(string Payload);

@@ -14,10 +14,9 @@ public class GetHistoryHandler(
   public async Task<GetHistoryResult> Handle(GetHistoryQuery request, CancellationToken ct) {
     var (total, orderDtos) = await orderReadRepository.GetAsync(
       x => x.CustomerId == currentUser.Id,
-      null,
-      request.Page,
-      request.PageSize,
-      ct
+      page: request.Page,
+      pageSize: request.PageSize,
+      ct: ct
     );
     var meta = Meta.Create(request.Page, request.PageSize, total);
     return new GetHistoryResult(orderDtos, meta);

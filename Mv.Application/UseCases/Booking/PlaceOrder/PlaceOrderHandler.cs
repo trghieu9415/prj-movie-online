@@ -23,7 +23,7 @@ public class PlaceOrderHandler(
     );
 
     if (validSeats.Count != request.SeatIds.Count) {
-      throw new WorkflowException("Tồn tại ghế không phù hợp");
+      throw new WorkflowException($"Tồn tại ghế không phù hợp {validSeats.Count} - {request.SeatIds.Count}");
     }
 
     var (movie, auditoriumName) =

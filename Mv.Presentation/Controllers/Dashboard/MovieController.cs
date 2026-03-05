@@ -10,7 +10,8 @@ namespace Mv.Presentation.Controllers.Dashboard;
 public class MovieController : DashboardController {
   [HttpGet]
   public async Task<IActionResult> Get([FromQuery] GetMoviesQuery query) {
-    return AppResponse.Success((await Mediator.Send(query)).Movies);
+    var result = await Mediator.Send(query);
+    return AppResponse.Success(result.Movies, result.Meta);
   }
 
   [HttpPost]

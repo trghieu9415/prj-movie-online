@@ -14,17 +14,17 @@ public interface IReadRepository<TEntity, TDto>
 
   Task<(int total, List<TDto> entities)> GetAsync(
     Expression<Func<TEntity, bool>>? criteria = null,
-    string[]? expands = null,
+    List<Expression<Func<TEntity, object>>>? includes = null,
     int? page = null,
     int? pageSize = null,
     CancellationToken ct = default
   );
 
-  Task<(int total, List<TDto> entities)> GetDeletedAsync(
-    Expression<Func<TEntity, bool>>? criteria = null,
-    string[]? expands = null,
-    int? page = null,
-    int? pageSize = null,
-    CancellationToken ct = default
-  );
+  // Task<(int total, List<TDto> entities)> GetDeletedAsync(
+  //   Expression<Func<TEntity, bool>>? criteria = null,
+  //   string[]? expands = null,
+  //   int? page = null,
+  //   int? pageSize = null,
+  //   CancellationToken ct = default
+  // );
 }
