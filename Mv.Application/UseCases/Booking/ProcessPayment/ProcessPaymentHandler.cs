@@ -19,7 +19,7 @@ public class ProcessPaymentHandler(
 
     var paymentGateway = gatewayFactory.CreatePaymentGateway(payment.Method);
     var gatewayPayload = paymentGateway.ToGatewayPayload(request.Payload);
-    var (isSucceed, transactionId) = paymentGateway.VerifyPayment(gatewayPayload);
+    var (isSucceed, transactionId) = await paymentGateway.VerifyPayment(gatewayPayload, ct);
 
     if (isSucceed) {
       payment.MarkAsSucceeded(currentUser.Id, transactionId);

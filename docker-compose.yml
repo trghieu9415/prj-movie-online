@@ -60,6 +60,14 @@ services:
       - minio_data:/data
     command: server /data --console-address ":9001"
 
+  image: stripe/stripe-cli:latest
+    container_name: stripe_webhook_listener
+    command: >
+      listen --api-key sk_test_5xxxxx???
+      --forward-to http://host.docker.internal:5202/api/webhooks/stripe
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
 volumes:
   pg_data:
   redis_data:

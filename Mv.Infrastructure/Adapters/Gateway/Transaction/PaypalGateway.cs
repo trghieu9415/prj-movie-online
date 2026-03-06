@@ -25,8 +25,8 @@ public class PaypalGateway : IPaymentGateway {
     _client.BaseAddress = new Uri(baseUrl);
   }
 
-  public string CreatePaymentUrl(Payment payment, Order order) {
-    var token = GetAccessToken();
+  public async Task<string> CreatePaymentUrl(Payment payment, Order order, CancellationToken ct = default) {
+    var token = await GetAccessTokenAsync(ct);
     if (string.IsNullOrEmpty(token)) {
       return string.Empty;
     }
@@ -42,6 +42,7 @@ public class PaypalGateway : IPaymentGateway {
             currency_code = "USD",
             value = payment.Amount.ToString("0.00", CultureInfo.InvariantCulture)
           },
+          // Lưu ý: Đổi lại description này thành "Nạp tiền cọc đấu giá" nếu bạn mang code này sang hệ thống BiddingOnline nhé
           description = $"Thanh toán vé phim {order.Movie.Name}"
         }
       },
@@ -53,38 +54,41 @@ public class PaypalGateway : IPaymentGateway {
     };
 
     var content = new StringContent(JsonSerializer.Serialize(orderRequest), Encoding.UTF8, "application/json");
-    var response = _client.PostAsync("/v2/checkout/orders", content).GetAwaiter().GetResult();
+    var response = await _client.PostAsync("/v2/checkout/orders", content, ct);
 
     if (!response.IsSuccessStatusCode) {
       return string.Empty;
     }
 
-    var json = JsonNode.Parse(response.Content.ReadAsStringAsync().GetAwaiter().GetResult());
+    var json = JsonNode.Parse(await response.Content.ReadAsStringAsync(ct));
     var approveLink = json?["links"]?.AsArray().FirstOrDefault(x => x?["rel"]?.ToString() == "approve")?["href"]
       ?.ToString();
 
     return approveLink ?? string.Empty;
   }
 
-  public (bool isSucceed, string transactionId) VerifyPayment(GatewayPayload payload) {
+  public async Task<(bool isSucceed, string transactionId)> VerifyPayment(GatewayPayload payload,
+    CancellationToken ct = default) {
     if (payload is not PaypalGatewayPayload paypalPayload || string.IsNullOrEmpty(paypalPayload.OrderId)) {
       return (false, string.Empty);
     }
 
     try {
-      var token = GetAccessToken();
+      var token = await GetAccessTokenAsync(ct);
+      if (string.IsNullOrEmpty(token)) {
+        return (false, string.Empty);
+      }
+
       _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
       var content = new StringContent("", Encoding.UTF8, "application/json");
-      var response = _client.PostAsync($"/v2/checkout/orders/{paypalPayload.OrderId}/capture", content)
-        .GetAwaiter()
-        .GetResult();
+      var response = await _client.PostAsync($"/v2/checkout/orders/{paypalPayload.OrderId}/capture", content, ct);
 
       if (!response.IsSuccessStatusCode) {
         return (false, string.Empty);
       }
 
-      var jsonBody = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+      var jsonBody = await response.Content.ReadAsStringAsync(ct);
       var json = JsonNode.Parse(jsonBody);
 
       var status = json?["status"]?.ToString();
@@ -100,9 +104,9 @@ public class PaypalGateway : IPaymentGateway {
     }
   }
 
-  public bool RefundPayment(Payment payment) {
+  public async Task<bool> RefundPayment(Payment payment, CancellationToken ct = default) {
     try {
-      var token = GetAccessToken();
+      var token = await GetAccessTokenAsync(ct);
       if (string.IsNullOrEmpty(token)) {
         return false;
       }
@@ -115,16 +119,13 @@ public class PaypalGateway : IPaymentGateway {
 
       var content = new StringContent(JsonSerializer.Serialize(refundRequest), Encoding.UTF8, "application/json");
 
-      var response = _client
-        .PostAsync($"/v2/payments/captures/{payment.TransactionId}/refund", content)
-        .GetAwaiter()
-        .GetResult();
+      var response = await _client.PostAsync($"/v2/payments/captures/{payment.TransactionId}/refund", content, ct);
 
       if (!response.IsSuccessStatusCode) {
         return false;
       }
 
-      var json = JsonNode.Parse(response.Content.ReadAsStringAsync().GetAwaiter().GetResult());
+      var json = JsonNode.Parse(await response.Content.ReadAsStringAsync(ct));
       var status = json?["status"]?.ToString();
 
       return status == "COMPLETED";
@@ -137,19 +138,19 @@ public class PaypalGateway : IPaymentGateway {
     return new PaypalGatewayPayload(data.ToString() ?? string.Empty);
   }
 
-  private string GetAccessToken() {
+  private async Task<string> GetAccessTokenAsync(CancellationToken ct) {
     var authBytes = Encoding.ASCII.GetBytes($"{_options.ClientId}:{_options.ClientSecret}");
     var request = new HttpRequestMessage(HttpMethod.Post, "/v1/oauth2/token");
     request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(authBytes));
     request.Content =
       new StringContent("grant_type=client_credentials", Encoding.UTF8, "application/x-www-form-urlencoded");
 
-    var response = _client.SendAsync(request).GetAwaiter().GetResult();
+    var response = await _client.SendAsync(request, ct);
     if (!response.IsSuccessStatusCode) {
       return string.Empty;
     }
 
-    var json = JsonNode.Parse(response.Content.ReadAsStringAsync().GetAwaiter().GetResult());
+    var json = JsonNode.Parse(await response.Content.ReadAsStringAsync(ct));
     return json?["access_token"]?.ToString() ?? string.Empty;
   }
 }

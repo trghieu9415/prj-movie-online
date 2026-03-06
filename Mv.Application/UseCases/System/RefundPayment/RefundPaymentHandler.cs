@@ -18,7 +18,7 @@ public class RefundPaymentHandler(
     }
 
     var paymentGateway = gatewayFactory.CreatePaymentGateway(payment.Method);
-    var refunded = paymentGateway.RefundPayment(payment);
+    var refunded = await paymentGateway.RefundPayment(payment, ct);
     payment.Refund();
     await paymentRepository.UpdateAsync(payment, ct);
     return refunded;

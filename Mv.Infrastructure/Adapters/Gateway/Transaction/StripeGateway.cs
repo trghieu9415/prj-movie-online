@@ -16,7 +16,7 @@ public class StripeGateway : IPaymentGateway {
     _cancelUrl = options.CancelUrl;
   }
 
-  public string CreatePaymentUrl(Payment payment, Order order) {
+  public async Task<string> CreatePaymentUrl(Payment payment, Order order, CancellationToken ct = default) {
     var options = new SessionCreateOptions {
       PaymentMethodTypes = ["card"],
       LineItems = [
@@ -40,19 +40,19 @@ public class StripeGateway : IPaymentGateway {
     };
 
     var service = new SessionService();
-    var session = service.Create(options);
+    var session = await service.CreateAsync(options, cancellationToken: ct);
     return session.Url;
   }
 
-
-  public (bool isSucceed, string transactionId) VerifyPayment(GatewayPayload payload) {
+  public async Task<(bool isSucceed, string transactionId)> VerifyPayment(GatewayPayload payload,
+    CancellationToken ct = default) {
     if (payload is not StripeGatewayPayload stripePayload) {
       return (false, string.Empty);
     }
 
     try {
       var service = new SessionService();
-      var session = service.Get(stripePayload.SessionId);
+      var session = await service.GetAsync(stripePayload.SessionId, cancellationToken: ct);
 
       if (session.PaymentStatus == "paid") {
         return (true, session.PaymentIntentId);
@@ -64,19 +64,19 @@ public class StripeGateway : IPaymentGateway {
     return (false, string.Empty);
   }
 
-  public bool RefundPayment(Payment payment) {
+  public async Task<bool> RefundPayment(Payment payment, CancellationToken ct = default) {
     var options = new RefundCreateOptions {
       PaymentIntent = payment.TransactionId
     };
+
     var service = new RefundService();
     try {
-      service.Create(options);
+      await service.CreateAsync(options, cancellationToken: ct);
       return true;
     } catch {
       return false;
     }
   }
-
 
   public GatewayPayload ToGatewayPayload(object data) {
     return new StripeGatewayPayload(data.ToString() ?? string.Empty);
