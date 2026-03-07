@@ -15,6 +15,10 @@ public class LocalStorageService : IStorageService {
     return Task.CompletedTask;
   }
 
+  public Task<List<string>> ListFilesAsync(string folder, CancellationToken ct = default) {
+    throw new NotImplementedException();
+  }
+
   public async Task<string> UploadAsync(
     string fileName,
     Stream content,

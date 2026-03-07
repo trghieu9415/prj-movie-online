@@ -14,7 +14,7 @@ public class PaymentCompletedConsumer(
   public async Task Consume(ConsumeContext<PaymentCompletedEvent> context) {
     var msg = context.Message;
     var command = new MarkOrderAsPaidCommand(msg.OrderId);
-    await mediator.Send(command);
+    await mediator.Send(command, context.CancellationToken);
 
     await userNotifier.SendToUser(
       msg.CustomerId,

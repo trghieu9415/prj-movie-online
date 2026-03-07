@@ -51,6 +51,21 @@ public class S3StorageService : IStorageService {
     await _s3Client.DeleteObjectAsync(deleteRequest, ct);
   }
 
+  public async Task<List<string>> ListFilesAsync(string folder, CancellationToken ct = default) {
+    var request = new ListObjectsV2Request {
+      BucketName = _bucketName,
+      Prefix = string.IsNullOrEmpty(folder) ? "" : $"{folder}/"
+    };
+
+    var response = await _s3Client.ListObjectsV2Async(request, ct);
+
+    var baseUrl = $"{_s3Client.Config.ServiceURL.TrimEnd('/')}/{_bucketName}/";
+    return response.S3Objects
+      .Where(x => !x.Key.EndsWith('/'))
+      .Select(x => $"{baseUrl}{x.Key}")
+      .ToList();
+  }
+
   // NOTE: ========== [Private Helper] ==========
   private string GetContentType(string ext) {
     return ext.ToLower() switch {

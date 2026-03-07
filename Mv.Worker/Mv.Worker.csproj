@@ -18,8 +18,4 @@
     <ProjectReference Include="..\Mv.Application\Mv.Application.csproj"/>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="BackgroundJobs\"/>
-  </ItemGroup>
-
 </Project>

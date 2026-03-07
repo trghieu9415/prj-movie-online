@@ -30,9 +30,7 @@ public class Payment : BaseEntity {
 
     TransactionId = transactionId;
     Status = PaymentStatus.Succeeded;
-    AddDomainEvent(new PaymentCompletedEvent(
-      Id, OrderId, userId, Amount, Method, TransactionId
-    ));
+    AddDomainEvent(new PaymentCompletedEvent(Id, OrderId, userId, Amount, Method, TransactionId));
   }
 
   public void MarkAsFailed() {
@@ -49,5 +47,6 @@ public class Payment : BaseEntity {
     }
 
     Status = PaymentStatus.Refunded;
+    AddDomainEvent(new PaymentRefundedEvent(Id, OrderId, Amount, Method, TransactionId));
   }
 }

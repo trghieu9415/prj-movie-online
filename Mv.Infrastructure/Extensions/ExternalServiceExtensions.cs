@@ -15,6 +15,7 @@ public static class ExternalServiceExtensions {
   public static IServiceCollection AddExternalServices(this IServiceCollection services) {
     services.AddScoped<IEmailService, EmailService>();
     services.AddScoped<IStorageService, S3StorageService>();
+    services.AddScoped<IImageTracker, ImageTracker>();
 
     services.AddHttpClient(HttpClientNames.Paypal)
       .AddStandardResilienceHandler(ConfigureExternalServicesResilience());

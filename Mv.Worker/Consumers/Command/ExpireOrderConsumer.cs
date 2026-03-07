@@ -9,6 +9,6 @@ public class ExpireOrderConsumer(
 ) : IConsumer<ExpireOrderCommand> {
   public async Task Consume(ConsumeContext<ExpireOrderCommand> context) {
     var command = context.Message;
-    await mediator.Send(command);
+    await mediator.Send(command, context.CancellationToken);
   }
 }
