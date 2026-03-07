@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Domain.Entities;
+using Mv.Application.Constants;
 using Mv.Application.Ports.Gateway;
 using Mv.Infrastructure.Configs.Options;
 
@@ -15,7 +16,7 @@ public class PaypalGateway : IPaymentGateway {
 
   public PaypalGateway(PayPalOptions options, IHttpClientFactory clientFactory) {
     _options = options;
-    _client = clientFactory.CreateClient();
+    _client = clientFactory.CreateClient(HttpClientNames.Paypal);
 
     var baseUrl =
       options.Mode.Equals("live", StringComparison.CurrentCultureIgnoreCase)
@@ -32,6 +33,7 @@ public class PaypalGateway : IPaymentGateway {
     }
 
     _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+    var amount = (payment.Amount / _options.ExchangeRate).ToString("0.00", CultureInfo.InvariantCulture);
 
     var orderRequest = new {
       intent = "CAPTURE",
@@ -39,8 +41,8 @@ public class PaypalGateway : IPaymentGateway {
         new {
           reference_id = payment.Id.ToString(),
           amount = new {
-            currency_code = "USD",
-            value = payment.Amount.ToString("0.00", CultureInfo.InvariantCulture)
+            currency_code = _options.Currency,
+            value = amount
           },
           description = $"Thanh toán vé phim {order.Movie.Name}"
         }
@@ -52,7 +54,11 @@ public class PaypalGateway : IPaymentGateway {
       }
     };
 
-    var content = new StringContent(JsonSerializer.Serialize(orderRequest), Encoding.UTF8, "application/json");
+    var content = new StringContent(
+      JsonSerializer.Serialize(orderRequest),
+      Encoding.UTF8,
+      "application/json"
+    );
     var response = await _client.PostAsync("/v2/checkout/orders", content, ct);
 
     if (!response.IsSuccessStatusCode) {
@@ -60,8 +66,8 @@ public class PaypalGateway : IPaymentGateway {
     }
 
     var json = JsonNode.Parse(await response.Content.ReadAsStringAsync(ct));
-    var approveLink = json?["links"]?.AsArray().FirstOrDefault(x => x?["rel"]?.ToString() == "approve")?["href"]
-      ?.ToString();
+    var approveLink = json?["links"]?
+      .AsArray().FirstOrDefault(x => x?["rel"]?.ToString() == "approve")?["href"]?.ToString();
 
     return approveLink ?? string.Empty;
   }
@@ -80,9 +86,12 @@ public class PaypalGateway : IPaymentGateway {
 
       _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-      var content = new StringContent("", Encoding.UTF8, "application/json");
-
-      var response = await _client.PostAsync($"/v2/checkout/orders/{paypalPayload.Token}/capture", content, ct);
+      var content = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+      var response = await _client.PostAsync(
+        $"/v2/checkout/orders/{paypalPayload.Token}/capture",
+        content,
+        ct
+      );
 
       if (!response.IsSuccessStatusCode) {
         return (false, string.Empty);
@@ -117,9 +126,17 @@ public class PaypalGateway : IPaymentGateway {
         note_to_payer = "Hoàn tiền vé phim"
       };
 
-      var content = new StringContent(JsonSerializer.Serialize(refundRequest), Encoding.UTF8, "application/json");
+      var content = new StringContent(
+        JsonSerializer.Serialize(refundRequest),
+        Encoding.UTF8,
+        "application/json"
+      );
 
-      var response = await _client.PostAsync($"/v2/payments/captures/{payment.TransactionId}/refund", content, ct);
+      var response = await _client.PostAsync(
+        $"/v2/payments/captures/{payment.TransactionId}/refund",
+        content,
+        ct
+      );
 
       if (!response.IsSuccessStatusCode) {
         return false;

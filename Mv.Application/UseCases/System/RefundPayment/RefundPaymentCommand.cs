@@ -2,4 +2,4 @@
 
 namespace Mv.Application.UseCases.System.RefundPayment;
 
-public record RefundPaymentCommand(Guid OrderId) : ICommand<bool>;
+public record RefundPaymentCommand(Guid Id) : ICommand<bool>;

@@ -7,13 +7,12 @@ using Stripe.Checkout;
 namespace Mv.Infrastructure.Adapters.Gateway.Transaction;
 
 public class StripeGateway : IPaymentGateway {
-  private readonly string _cancelUrl;
-  private readonly string _successUrl;
+  private readonly StripeOptions _options;
 
   public StripeGateway(StripeOptions options) {
     StripeConfiguration.ApiKey = options.SecretKey;
-    _successUrl = options.SuccessUrl;
-    _cancelUrl = options.CancelUrl;
+    StripeConfiguration.MaxNetworkRetries = options.Retry;
+    _options = options;
   }
 
   public async Task<string> CreatePaymentUrl(Payment payment, Order order, CancellationToken ct = default) {
@@ -23,7 +22,7 @@ public class StripeGateway : IPaymentGateway {
         new SessionLineItemOptions {
           PriceData = new SessionLineItemPriceDataOptions {
             UnitAmount = (long)(payment.Amount * 100),
-            Currency = "usd",
+            Currency = _options.Currency,
             ProductData = new SessionLineItemPriceDataProductDataOptions {
               Name = $"Thanh toán vé phim {order.Movie.Name}",
               Description = $"Các ghế: {string.Join(", ",
@@ -35,8 +34,8 @@ public class StripeGateway : IPaymentGateway {
         }
       ],
       Mode = "payment",
-      SuccessUrl = $"{_successUrl}?payment_id={payment.Id}&session_id={{CHECKOUT_SESSION_ID}}",
-      CancelUrl = _cancelUrl
+      SuccessUrl = $"{_options.SuccessUrl}?payment_id={payment.Id}&session_id={{CHECKOUT_SESSION_ID}}",
+      CancelUrl = _options.CancelUrl
     };
 
     var service = new SessionService();

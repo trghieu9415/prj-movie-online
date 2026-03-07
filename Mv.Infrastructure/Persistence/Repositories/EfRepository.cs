@@ -39,8 +39,13 @@ public class EfRepository<T>(AppDbContext context) : IRepository<T> where T : Ba
     return await query.ToListAsync(ct);
   }
 
-  public Task<T?> GetFirstAsync(Expression<Func<T, bool>>? criteria = null, CancellationToken ct = default) {
-    throw new NotImplementedException();
+  public async Task<T?> GetFirstAsync(Expression<Func<T, bool>>? criteria = null, CancellationToken ct = default) {
+    var query = _dbSet.Where(x => !x.IsDeleted);
+    if (criteria != null) {
+      query = query.Where(criteria);
+    }
+
+    return await query.FirstOrDefaultAsync(ct);
   }
 
   public async Task<List<T>> GetByKeysAsync(

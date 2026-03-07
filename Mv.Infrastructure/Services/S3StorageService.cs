@@ -12,7 +12,9 @@ public class S3StorageService : IStorageService {
   public S3StorageService(S3Options s3Options) {
     var s3Config = new AmazonS3Config {
       ServiceURL = s3Options.ServiceUrl,
-      ForcePathStyle = s3Options.ForcePathStyle
+      ForcePathStyle = s3Options.ForcePathStyle,
+      MaxErrorRetry = s3Options.Retry,
+      Timeout = TimeSpan.FromSeconds(s3Options.TimeOut)
     };
 
     _bucketName = s3Options.BucketName;
