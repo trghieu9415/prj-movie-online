@@ -11,12 +11,12 @@ public class PaymentCompletedConsumer(
   IMediator mediator,
   IUserNotifier userNotifier
 ) : IConsumer<PaymentCompletedEvent> {
-  public Task Consume(ConsumeContext<PaymentCompletedEvent> context) {
+  public async Task Consume(ConsumeContext<PaymentCompletedEvent> context) {
     var msg = context.Message;
     var command = new MarkOrderAsPaidCommand(msg.OrderId);
-    mediator.Send(command);
+    await mediator.Send(command);
 
-    userNotifier.SendToUser(
+    await userNotifier.SendToUser(
       msg.CustomerId,
       ClientMethods.PaymentSuccess,
       new {
@@ -24,6 +24,5 @@ public class PaymentCompletedConsumer(
         amount = msg.Amount
       }
     );
-    return Task.CompletedTask;
   }
 }

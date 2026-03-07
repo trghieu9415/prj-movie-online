@@ -24,8 +24,10 @@ public class MassTransitEventDispatcher(
       .SelectMany(x => x.DomainEvents)
       .ToList();
 
-    domainEntities.ForEach(x => x.ClearEvents());
+    foreach (var domainEvent in domainEvents) {
+      await publishEndpoint.Publish((object)domainEvent, ct);
+    }
 
-    await Task.WhenAll(domainEvents.Select(evt => publishEndpoint.Publish((object)evt, ct)));
+    domainEntities.ForEach(x => x.ClearEvents());
   }
 }

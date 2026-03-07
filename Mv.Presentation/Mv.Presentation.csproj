@@ -4,6 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>1b2ebe84-9b2e-4632-8789-625494c0bbe9</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,10 +26,6 @@
     <ProjectReference Include="..\Mv.Application\Mv.Application.csproj"/>
     <ProjectReference Include="..\Mv.Infrastructure\Mv.Infrastructure.csproj"/>
     <ProjectReference Include="..\Mv.Worker\Mv.Worker.csproj"/>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="wwwroot\"/>
   </ItemGroup>
 
 </Project>

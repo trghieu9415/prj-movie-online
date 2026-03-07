@@ -8,5 +8,6 @@ public class EmailOptions : IOptionSection {
   public string FromAddress { get; init; } = string.Empty;
   public string FromName { get; init; } = string.Empty;
   public bool EnableSsl { get; init; }
+  public string FrontEndUrl { get; init; } = string.Empty;
   public static string SectionName => "EmailSettings";
 }

@@ -8,6 +8,7 @@ using Mv.Application.UseCases.Auth.Refresh;
 using Mv.Application.UseCases.Auth.Register;
 using Mv.Application.UseCases.Auth.RequestPassword;
 using Mv.Application.UseCases.Auth.ResetPassword;
+using Mv.Presentation.Controllers.Forms;
 using Mv.Presentation.Response;
 
 namespace Mv.Presentation.Controllers.User;
@@ -19,8 +20,8 @@ public class AuthController : UserController {
   }
 
   [HttpPost("login")]
-  public async Task<IActionResult> Login([FromForm] string email, [FromForm] string password) {
-    var command = new LoginCommand(email, password, UserRole.Customer);
+  public async Task<IActionResult> Login([FromBody] LoginForm form) {
+    var command = new LoginCommand(form.Email, form.Password, UserRole.Customer);
     return AppResponse.Success(await Mediator.Send(command));
   }
 

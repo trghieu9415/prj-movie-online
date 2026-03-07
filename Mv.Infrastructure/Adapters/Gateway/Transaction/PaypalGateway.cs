@@ -42,12 +42,11 @@ public class PaypalGateway : IPaymentGateway {
             currency_code = "USD",
             value = payment.Amount.ToString("0.00", CultureInfo.InvariantCulture)
           },
-          // Lưu ý: Đổi lại description này thành "Nạp tiền cọc đấu giá" nếu bạn mang code này sang hệ thống BiddingOnline nhé
           description = $"Thanh toán vé phim {order.Movie.Name}"
         }
       },
       application_context = new {
-        return_url = _options.SuccessUrl,
+        return_url = $"{_options.SuccessUrl}?payment_id={payment.Id}",
         cancel_url = _options.CancelUrl,
         user_action = "PAY_NOW"
       }
@@ -69,7 +68,7 @@ public class PaypalGateway : IPaymentGateway {
 
   public async Task<(bool isSucceed, string transactionId)> VerifyPayment(GatewayPayload payload,
     CancellationToken ct = default) {
-    if (payload is not PaypalGatewayPayload paypalPayload || string.IsNullOrEmpty(paypalPayload.OrderId)) {
+    if (payload is not PaypalGatewayPayload paypalPayload || string.IsNullOrEmpty(paypalPayload.Token)) {
       return (false, string.Empty);
     }
 
@@ -82,7 +81,8 @@ public class PaypalGateway : IPaymentGateway {
       _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
       var content = new StringContent("", Encoding.UTF8, "application/json");
-      var response = await _client.PostAsync($"/v2/checkout/orders/{paypalPayload.OrderId}/capture", content, ct);
+
+      var response = await _client.PostAsync($"/v2/checkout/orders/{paypalPayload.Token}/capture", content, ct);
 
       if (!response.IsSuccessStatusCode) {
         return (false, string.Empty);
@@ -135,9 +135,11 @@ public class PaypalGateway : IPaymentGateway {
   }
 
   public GatewayPayload ToGatewayPayload(object data) {
-    return new PaypalGatewayPayload(data.ToString() ?? string.Empty);
+    var props = data.ExtractProperties("token", "PayerID");
+    return new PaypalGatewayPayload(props["token"], props["PayerID"]);
   }
 
+  // NOTE: ========== [Private Helper] ==========
   private async Task<string> GetAccessTokenAsync(CancellationToken ct) {
     var authBytes = Encoding.ASCII.GetBytes($"{_options.ClientId}:{_options.ClientSecret}");
     var request = new HttpRequestMessage(HttpMethod.Post, "/v1/oauth2/token");
@@ -155,4 +157,4 @@ public class PaypalGateway : IPaymentGateway {
   }
 }
 
-public record PaypalGatewayPayload(string OrderId) : GatewayPayload;
+public record PaypalGatewayPayload(string Token, string PayerId = "") : GatewayPayload;

@@ -35,7 +35,7 @@ public class StripeGateway : IPaymentGateway {
         }
       ],
       Mode = "payment",
-      SuccessUrl = $"{_successUrl}?session_id={{CHECKOUT_SESSION_ID}}",
+      SuccessUrl = $"{_successUrl}?payment_id={payment.Id}&session_id={{CHECKOUT_SESSION_ID}}",
       CancelUrl = _cancelUrl
     };
 
@@ -79,7 +79,8 @@ public class StripeGateway : IPaymentGateway {
   }
 
   public GatewayPayload ToGatewayPayload(object data) {
-    return new StripeGatewayPayload(data.ToString() ?? string.Empty);
+    var props = data.ExtractProperties("session_id");
+    return new StripeGatewayPayload(props["session_id"]);
   }
 }
 

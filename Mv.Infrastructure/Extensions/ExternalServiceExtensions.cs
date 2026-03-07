@@ -11,7 +11,7 @@ namespace Mv.Infrastructure.Extensions;
 public static class ExternalServiceExtensions {
   public static IServiceCollection AddExternalServices(this IServiceCollection services) {
     services.AddScoped<IEmailService, EmailService>();
-    services.AddScoped<IStorageService, LocalStorageService>();
+    services.AddScoped<IStorageService, S3StorageService>();
 
     // Transactions
     services.AddHttpClient();

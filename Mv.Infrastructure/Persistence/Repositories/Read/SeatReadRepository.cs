@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Domain.Entities;
+using Domain.Enums;
 using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Mv.Application.DTOs;
@@ -20,11 +21,18 @@ public class SeatReadRepository(
       return [];
     }
 
+    var ignoredStatuses = new[] { OrderStatus.Refunded, OrderStatus.Canceled };
+
     var validSeats = await DbContext.Set<Seat>()
       .AsNoTracking()
       .Where(s => seatIds.Contains(s.Id) && !s.IsDeleted)
       .Where(s => DbContext.Set<Showtime>()
         .Any(st => st.Id == showtimeId && st.AuditoriumId == s.AuditoriumId))
+      .Where(s => !DbContext.Set<Order>()
+        .Any(o =>
+          o.ShowtimeId == showtimeId &&
+          !ignoredStatuses.Contains(o.Status) &&
+          o.Tickets.Any(t => t.SeatSnapshot.SeatId == s.Id)))
       .Select(s => new SeatSnapshot(s.Id, s.Row, s.Number))
       .ToListAsync(ct);
     return validSeats;

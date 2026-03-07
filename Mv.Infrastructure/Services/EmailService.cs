@@ -26,7 +26,7 @@ public class EmailService(
     const string subject = "[Movie Online] Khôi phục mật khẩu của bạn";
 
     // TODO: Thay đổi theo Link FrontEnd
-    var resetLink = $"https://movie-online.com/reset-password?token={token}&email={email}";
+    var resetLink = $"{options.FrontEndUrl}?token={token}&email={email}";
 
     var placeholders = new Dictionary<string, string> {
       { "ResetLink", resetLink }

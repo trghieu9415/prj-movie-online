@@ -5,6 +5,7 @@ using Mv.Application.UseCases.Auth.ChangePassword;
 using Mv.Application.UseCases.Auth.GetProfile;
 using Mv.Application.UseCases.Auth.Login;
 using Mv.Application.UseCases.Auth.Refresh;
+using Mv.Presentation.Controllers.Forms;
 using Mv.Presentation.Response;
 
 namespace Mv.Presentation.Controllers.Dashboard;
@@ -12,8 +13,8 @@ namespace Mv.Presentation.Controllers.Dashboard;
 public class AuthController : DashboardController {
   [AllowAnonymous]
   [HttpPost("login")]
-  public async Task<IActionResult> Login([FromForm] string email, [FromForm] string password) {
-    var command = new LoginCommand(email, password, UserRole.Admin);
+  public async Task<IActionResult> Login([FromBody] LoginForm form) {
+    var command = new LoginCommand(form.Email, form.Password, UserRole.Admin);
     return AppResponse.Success(await Mediator.Send(command));
   }
 

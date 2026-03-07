@@ -39,8 +39,8 @@ services:
     container_name: rabbitmq
     restart: always
     environment:
-      - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PASS=password123
+      - RABBITMQ_DEFAULT_USER=${RABITTMQ_ADMIN}
+      - RABBITMQ_DEFAULT_PASS=${RABITTMQ_PASSWORD}
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -48,22 +48,23 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
 
   minio:
-    image: minio/minio:latest
+    image: minio/minio:RELEASE.2025-02-28T09-55-16Z
     container_name: minio_s3_simulator
     ports:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ROOT_USER: "admin"
-      MINIO_ROOT_PASSWORD: "password123"
+      MINIO_ROOT_USER: ${MINIO_ADMIN}
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
     volumes:
       - minio_data:/data
     command: server /data --console-address ":9001"
 
-  image: stripe/stripe-cli:latest
-    container_name: stripe_webhook_listener
+  stripe_listener:
+    image: stripe/stripe-cli:latest
+    container_name: stripe_listener
     command: >
-      listen --api-key sk_test_5xxxxx???
+      listen --api-key ${STRIPE_SECRET_KEY}
       --forward-to http://host.docker.internal:5202/api/webhooks/stripe
     extra_hosts:
       - "host.docker.internal:host-gateway"
