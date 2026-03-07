@@ -4,8 +4,6 @@ out/
 .env
 [Mm]igrations/
 
-appsettings.json
-
 .vs/
 *.user
 *.userosscache

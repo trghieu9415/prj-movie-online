@@ -11,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // --- Infrastructure ---
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Configuration.AddJsonFile("secrets.json", true, true);
 
 // --- Worker ---
 if (!args.Contains("--seeding") && !EF.IsDesignTime) {
