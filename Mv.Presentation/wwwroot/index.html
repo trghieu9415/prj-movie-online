@@ -57,7 +57,7 @@
 
     .param-item {
       display: flex;
-      flex-direction: column; /* Đổi sang cột để chứa data dài tốt hơn */
+      flex-direction: column;
       gap: 8px;
       padding: 16px;
       border-radius: 12px;
@@ -84,13 +84,19 @@
     .value {
       font-weight: 500;
       color: #e2e8f0;
-      word-break: break-all; /* Tự động xuống dòng khi text quá dài */
+      word-break: break-all;
       cursor: pointer;
       padding: 10px;
       border-radius: 8px;
       background: rgba(0, 0, 0, 0.2);
       transition: all 0.2s;
       position: relative;
+      white-space: pre-wrap;
+    }
+
+    .json-value {
+      font-family: monospace;
+      font-size: 14px;
     }
 
     .value:hover {
@@ -102,7 +108,6 @@
       transform: scale(0.98);
     }
 
-    /* Hiệu ứng tooltip nhỏ khi copy */
     .value.copied::after {
       content: "Copied!";
       position: absolute;
@@ -147,31 +152,52 @@
       <div class="empty">
         Không có query parameter.<br><br>
         Thử thêm: <br><br>
-        <code>?token=LongString123456789...&user=Hieu</code>
+        <code>?payment_id=12345&name=Hieu&role=admin</code>
       </div>`;
   } else {
+    let paymentIdValue = null;
+    const otherParams = {};
+
     params.forEach((value, key) => {
+      if (key === 'payment_id') {
+        paymentIdValue = value;
+      } else {
+        otherParams[key] = value;
+      }
+    });
+
+    function renderBlock(title, content, isJson = false) {
       const item = document.createElement("div");
       item.className = "param-item";
 
+      const valueClass = isJson ? "value json-value" : "value";
+
       item.innerHTML = `
         <div class="param-header">
-          <span class="key">${key}</span>
+          <span class="key">${title}</span>
         </div>
-        <div class="value" title="Click to copy">${value}</div>
+        <div class="${valueClass}" title="Click to copy">${content}</div>
       `;
 
-      // Xử lý sự kiện Copy
       const valueEl = item.querySelector('.value');
       valueEl.addEventListener('click', () => {
-        navigator.clipboard.writeText(value).then(() => {
+        navigator.clipboard.writeText(content).then(() => {
           valueEl.classList.add('copied');
           setTimeout(() => valueEl.classList.remove('copied'), 1500);
         });
       });
 
       container.appendChild(item);
-    });
+    }
+
+    if (paymentIdValue !== null) {
+      renderBlock('payment_id', paymentIdValue);
+    }
+
+    if (Object.keys(otherParams).length > 0) {
+      const jsonString = JSON.stringify(otherParams, null, 2);
+      renderBlock('other_attributes', jsonString, true);
+    }
   }
 </script>
 </body>
