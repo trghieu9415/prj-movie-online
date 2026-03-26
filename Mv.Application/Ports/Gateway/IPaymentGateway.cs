@@ -1,4 +1,4 @@
-﻿using Domain.Entities;
+﻿using Mv.Domain.Entities;
 
 namespace Mv.Application.Ports.Gateway;
 

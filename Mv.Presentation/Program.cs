@@ -57,7 +57,6 @@ if (app.Environment.IsDevelopment()) {
   app.UseSwaggerUI(c => {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "User API");
     c.SwaggerEndpoint("/swagger/v2/swagger.json", "Dashboard API");
-    c.SwaggerEndpoint("/swagger/v3/swagger.json", "External API");
     c.DocExpansion(DocExpansion.None);
   });
 }

@@ -1,10 +1,10 @@
-﻿using Domain.Base;
-using Domain.Enums;
-using Domain.Events;
-using Domain.Exceptions;
-using Domain.ValueObjects;
+﻿using Mv.Domain.Base;
+using Mv.Domain.Enums;
+using Mv.Domain.Events;
+using Mv.Domain.Exceptions;
+using Mv.Domain.ValueObjects;
 
-namespace Domain.Entities;
+namespace Mv.Domain.Entities;
 
 public class Order : BaseEntity {
   private readonly List<Ticket> _tickets = [];

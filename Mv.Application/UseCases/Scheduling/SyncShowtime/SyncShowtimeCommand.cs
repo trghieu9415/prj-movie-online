@@ -1,5 +1,5 @@
-using Domain.ValueObjects;
 using Mv.Application.Abstractions;
+using Mv.Domain.ValueObjects;
 
 namespace Mv.Application.UseCases.Scheduling.SyncShowtime;
 

@@ -196,6 +196,7 @@ public class AuthService(
 
   private async Task UpdateSecurityStampInternal(AppUser user, CancellationToken ct) {
     var result = await userManager.UpdateSecurityStampAsync(user);
+
     if (result.Succeeded) {
       await cache.SyncSecurityStampAsync(user.Id, user.SecurityStamp!, ct);
     }

@@ -1,5 +1,5 @@
-﻿using Domain.Entities;
-using Mv.Application.Ports.Gateway;
+﻿using Mv.Application.Ports.Gateway;
+using Mv.Domain.Entities;
 using Mv.Infrastructure.Configs.Options;
 using Stripe;
 using Stripe.Checkout;
@@ -21,7 +21,7 @@ public class StripeGateway : IPaymentGateway {
       LineItems = [
         new SessionLineItemOptions {
           PriceData = new SessionLineItemPriceDataOptions {
-            UnitAmount = (long)(payment.Amount * 100),
+            UnitAmount = (long)payment.Amount,
             Currency = _options.Currency,
             ProductData = new SessionLineItemPriceDataProductDataOptions {
               Name = $"Thanh toán vé phim {order.Movie.Name}",

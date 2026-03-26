@@ -1,8 +1,8 @@
-using Domain.Entities;
 using MediatR;
 using Mv.Application.DTOs;
 using Mv.Application.Models;
 using Mv.Application.Repositories;
+using Mv.Domain.Entities;
 
 namespace Mv.Application.UseCases.Facility.GetAuditoriums;
 

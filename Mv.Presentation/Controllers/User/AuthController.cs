@@ -15,18 +15,15 @@ namespace Mv.Presentation.Controllers.User;
 
 public class AuthController : UserController {
   [HttpPost("register")]
+  [AllowAnonymous]
   public async Task<IActionResult> Register(RegisterCommand command) {
     return AppResponse.Success(await Mediator.Send(command));
   }
 
   [HttpPost("login")]
+  [AllowAnonymous]
   public async Task<IActionResult> Login([FromBody] LoginForm form) {
     var command = new LoginCommand(form.Email, form.Password, UserRole.Customer);
-    return AppResponse.Success(await Mediator.Send(command));
-  }
-
-  [HttpPost("refresh-token")]
-  public async Task<IActionResult> Refresh(RefreshCommand command) {
     return AppResponse.Success(await Mediator.Send(command));
   }
 
@@ -34,6 +31,11 @@ public class AuthController : UserController {
   [HttpGet("profile")]
   public async Task<IActionResult> GetProfile() {
     return AppResponse.Success(await Mediator.Send(new GetProfileQuery()));
+  }
+
+  [HttpPost("refresh-token")]
+  public async Task<IActionResult> Refresh(RefreshCommand command) {
+    return AppResponse.Success(await Mediator.Send(command));
   }
 
   [Authorize]

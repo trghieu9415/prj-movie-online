@@ -1,5 +1,5 @@
-﻿using Domain.ValueObjects;
-using Mv.Application.DTOs.Base;
+﻿using Mv.Application.DTOs.Base;
+using Mv.Domain.ValueObjects;
 
 namespace Mv.Application.DTOs;
 

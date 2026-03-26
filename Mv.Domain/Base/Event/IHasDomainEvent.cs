@@ -1,4 +1,4 @@
-﻿namespace Domain.Base.Event;
+﻿namespace Mv.Domain.Base.Event;
 
 public interface IHasDomainEvent {
   IReadOnlyCollection<DomainEvent> DomainEvents { get; }

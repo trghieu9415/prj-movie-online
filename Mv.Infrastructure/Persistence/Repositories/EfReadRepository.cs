@@ -2,10 +2,10 @@
 using System.Linq.Expressions;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using Domain.Base;
 using Microsoft.EntityFrameworkCore;
 using Mv.Application.DTOs.Base;
 using Mv.Application.Repositories;
+using Mv.Domain.Base;
 
 namespace Mv.Infrastructure.Persistence.Repositories;
 

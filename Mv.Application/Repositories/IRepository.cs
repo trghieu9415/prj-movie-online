@@ -1,5 +1,5 @@
 ﻿using System.Linq.Expressions;
-using Domain.Base;
+using Mv.Domain.Base;
 
 namespace Mv.Application.Repositories;
 

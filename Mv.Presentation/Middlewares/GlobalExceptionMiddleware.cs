@@ -1,6 +1,6 @@
-﻿using Domain.Exceptions;
-using Mv.Application.Exceptions;
+﻿using Mv.Application.Exceptions;
 using Mv.Application.Ports.Logging;
+using Mv.Domain.Exceptions;
 using Mv.Infrastructure.Exceptions;
 using Mv.Presentation.Response;
 

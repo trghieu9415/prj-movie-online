@@ -1,7 +1,7 @@
-﻿using Domain.Base.Event;
-using Domain.Enums;
+﻿using Mv.Domain.Base.Event;
+using Mv.Domain.Enums;
 
-namespace Domain.Events;
+namespace Mv.Domain.Events;
 
 public record PaymentRefundedEvent(
   Guid PaymentId,

@@ -1,6 +1,6 @@
-﻿using Domain.Enums;
-using Domain.ValueObjects;
-using Mv.Application.DTOs.Base;
+﻿using Mv.Application.DTOs.Base;
+using Mv.Domain.Enums;
+using Mv.Domain.ValueObjects;
 
 namespace Mv.Application.DTOs;
 

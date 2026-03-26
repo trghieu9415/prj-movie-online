@@ -1,5 +1,5 @@
-using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Mv.Domain.Entities;
 using Mv.Infrastructure.Persistence;
 
 namespace Mv.Infrastructure.Seeding.Seeders;

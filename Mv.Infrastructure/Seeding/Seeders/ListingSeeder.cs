@@ -1,6 +1,6 @@
-using Domain.Entities;
-using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
+using Mv.Domain.Entities;
+using Mv.Domain.ValueObjects;
 using Mv.Infrastructure.Persistence;
 
 namespace Mv.Infrastructure.Seeding.Seeders;

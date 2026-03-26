@@ -38,7 +38,7 @@ public static class JobRegistration {
 
   private static void ScheduleStartupJob<TJob>(
     this IServiceCollectionQuartzConfigurator q,
-    DateTimeOffset delay,
+    TimeSpan delay,
     string description = ""
   ) where TJob : IJob {
     var jobKey = new JobKey(typeof(TJob).Name);
@@ -46,7 +46,26 @@ public static class JobRegistration {
     q.AddTrigger(opts => opts
       .ForJob(jobKey)
       .WithIdentity($"{typeof(TJob).Name}-Trigger")
-      .StartAt(DateBuilder.EvenSecondDate(delay))
+      .StartAt(DateBuilder.EvenSecondDate(DateTimeOffset.Now.Add(delay)))
+    );
+  }
+
+  private static void SchedulePeriodicJob<TJob>(
+    this IServiceCollectionQuartzConfigurator q,
+    TimeSpan interval,
+    string description = ""
+  ) where TJob : IJob {
+    var jobKey = new JobKey(typeof(TJob).Name);
+    q.AddJob<TJob>(opts => opts.WithIdentity(jobKey).WithDescription(description));
+
+    q.AddTrigger(opts => opts
+      .ForJob(jobKey)
+      .WithIdentity($"{typeof(TJob).Name}-Trigger")
+      .StartNow()
+      .WithSimpleSchedule(x => x
+        .WithInterval(interval)
+        .RepeatForever()
+      )
     );
   }
 }

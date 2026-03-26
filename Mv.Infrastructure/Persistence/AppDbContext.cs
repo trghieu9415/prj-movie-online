@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Mv.Application.Abstractions;
 using Mv.Application.Exceptions;
+using Mv.Domain.Entities;
 using Mv.Infrastructure.Persistence.Identity;
 
 namespace Mv.Infrastructure.Persistence;
@@ -35,7 +36,7 @@ public class AppDbContext(
       throw;
     } finally {
       if (_currentTransaction != null) {
-        _currentTransaction.Dispose();
+        await _currentTransaction.DisposeAsync();
         _currentTransaction = null;
       }
     }
@@ -48,7 +49,7 @@ public class AppDbContext(
       }
     } finally {
       if (_currentTransaction != null) {
-        _currentTransaction.Dispose();
+        await _currentTransaction.DisposeAsync();
         _currentTransaction = null;
       }
     }
@@ -57,6 +58,8 @@ public class AppDbContext(
   protected override void OnModelCreating(ModelBuilder modelBuilder) {
     modelBuilder.HasPostgresExtension("pg_trgm");
     base.OnModelCreating(modelBuilder);
+
+    modelBuilder.Entity<Order>().Property(o => o.CustomerName).IsRequired().HasMaxLength(255);
 
     // NOTE: ========== [MassTransit Outbox Entities] ==========
     modelBuilder.AddInboxStateEntity();

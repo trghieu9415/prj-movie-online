@@ -1,8 +1,8 @@
-﻿using Domain.Enums;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Http.Resilience;
 using Mv.Application.Constants;
 using Mv.Application.Ports.Gateway;
+using Mv.Domain.Enums;
 using Mv.Infrastructure.Adapters.Gateway;
 using Mv.Infrastructure.Adapters.Gateway.Transaction;
 using Mv.Infrastructure.Services;

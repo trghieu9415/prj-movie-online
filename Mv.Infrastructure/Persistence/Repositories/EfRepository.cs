@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
-using Domain.Base;
 using Microsoft.EntityFrameworkCore;
 using Mv.Application.Repositories;
+using Mv.Domain.Base;
 using Mv.Infrastructure.Exceptions;
 
 namespace Mv.Infrastructure.Persistence.Repositories;

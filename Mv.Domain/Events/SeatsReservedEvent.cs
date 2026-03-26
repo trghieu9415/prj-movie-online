@@ -1,6 +1,6 @@
-﻿using Domain.Base.Event;
+﻿using Mv.Domain.Base.Event;
 
-namespace Domain.Events;
+namespace Mv.Domain.Events;
 
 public record SeatsReservedEvent(
   Guid OrderId,

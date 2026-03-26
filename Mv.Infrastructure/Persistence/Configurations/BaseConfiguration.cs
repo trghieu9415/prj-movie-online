@@ -1,6 +1,6 @@
-using Domain.Base;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Mv.Domain.Base;
 
 namespace Mv.Infrastructure.Persistence.Configurations;
 

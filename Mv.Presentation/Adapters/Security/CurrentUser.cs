@@ -10,6 +10,7 @@ public class CurrentUser : ICurrentUser {
     var id = user?.FindFirstValue(ClaimTypes.NameIdentifier);
 
     if (id != null) {
+
       Id = Guid.Parse(id);
       FullName = user?.Identity?.Name ?? "Guest";
       Role = user?.FindFirstValue(ClaimTypes.Role) == nameof(UserRole.Admin) ? UserRole.Admin : UserRole.Customer;

@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using Domain.Base.Event;
+using Mv.Domain.Base.Event;
 
-namespace Domain.Base;
+namespace Mv.Domain.Base;
 
 public class BaseEntity : IHasDomainEvent {
   private readonly List<DomainEvent> _domainEvents = [];

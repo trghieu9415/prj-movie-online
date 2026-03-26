@@ -1,7 +1,7 @@
-﻿using Domain.Events;
-using MassTransit;
+﻿using MassTransit;
 using Mv.Application.Constants;
 using Mv.Application.DTOs;
+using Mv.Domain.Events;
 using Mv.Infrastructure.Services.Abstractions;
 
 namespace Mv.Worker.Consumers.Event;

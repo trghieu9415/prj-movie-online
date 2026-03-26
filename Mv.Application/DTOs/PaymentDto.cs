@@ -1,5 +1,5 @@
-﻿using Domain.Enums;
-using Mv.Application.DTOs.Base;
+﻿using Mv.Application.DTOs.Base;
+using Mv.Domain.Enums;
 
 namespace Mv.Application.DTOs;
 

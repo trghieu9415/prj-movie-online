@@ -1,7 +1,7 @@
-﻿using Domain.Base;
-using Domain.ValueObjects;
+﻿using Mv.Domain.Base;
+using Mv.Domain.ValueObjects;
 
-namespace Domain.Entities;
+namespace Mv.Domain.Entities;
 
 public class Ticket : BaseEntity {
   private Ticket() {}

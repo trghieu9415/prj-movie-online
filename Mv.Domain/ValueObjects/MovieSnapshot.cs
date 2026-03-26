@@ -1,4 +1,4 @@
-﻿namespace Domain.ValueObjects;
+﻿namespace Mv.Domain.ValueObjects;
 
 public record MovieSnapshot {
   public Guid Id { get; init; }

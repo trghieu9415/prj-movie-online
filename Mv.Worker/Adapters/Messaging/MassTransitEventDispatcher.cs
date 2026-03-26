@@ -1,6 +1,6 @@
-﻿using Domain.Base.Event;
-using MassTransit;
+﻿using MassTransit;
 using Mv.Application.Ports.Messaging;
+using Mv.Domain.Base.Event;
 using Mv.Infrastructure.Persistence;
 
 namespace Mv.Worker.Adapters.Messaging;

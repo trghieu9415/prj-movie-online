@@ -1,6 +1,6 @@
-﻿using Domain.Enums;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Mv.Application.Ports.Gateway;
+using Mv.Domain.Enums;
 
 namespace Mv.Infrastructure.Adapters.Gateway;
 

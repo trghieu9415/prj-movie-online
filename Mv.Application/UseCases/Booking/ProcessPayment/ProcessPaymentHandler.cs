@@ -1,8 +1,8 @@
-﻿using Domain.Entities;
-using MediatR;
+﻿using MediatR;
 using Mv.Application.Ports.Gateway;
 using Mv.Application.Ports.Security;
 using Mv.Application.Repositories;
+using Mv.Domain.Entities;
 
 namespace Mv.Application.UseCases.Booking.ProcessPayment;
 

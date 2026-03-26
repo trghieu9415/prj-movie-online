@@ -1,4 +1,4 @@
-﻿namespace Domain.Enums;
+﻿namespace Mv.Domain.Enums;
 
 public enum PaymentStatus {
   Pending,

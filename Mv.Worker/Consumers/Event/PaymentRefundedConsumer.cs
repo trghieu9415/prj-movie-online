@@ -1,7 +1,7 @@
-﻿using Domain.Events;
-using MassTransit;
+﻿using MassTransit;
 using MediatR;
 using Mv.Application.UseCases.System.RefundOrder;
+using Mv.Domain.Events;
 
 namespace Mv.Worker.Consumers.Event;
 

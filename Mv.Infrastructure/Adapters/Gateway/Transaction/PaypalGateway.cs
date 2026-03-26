@@ -3,9 +3,9 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Domain.Entities;
 using Mv.Application.Constants;
 using Mv.Application.Ports.Gateway;
+using Mv.Domain.Entities;
 using Mv.Infrastructure.Configs.Options;
 
 namespace Mv.Infrastructure.Adapters.Gateway.Transaction;

@@ -1,4 +1,4 @@
-﻿namespace Domain.Base.Event;
+﻿namespace Mv.Domain.Base.Event;
 
 public abstract record DomainEvent {
   public Guid Id { get; init; } = Guid.NewGuid();

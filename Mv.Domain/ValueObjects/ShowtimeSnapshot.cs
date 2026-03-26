@@ -1,4 +1,4 @@
-namespace Domain.ValueObjects;
+namespace Mv.Domain.ValueObjects;
 
 public record ShowtimeSnapshot(
   Guid? Id,

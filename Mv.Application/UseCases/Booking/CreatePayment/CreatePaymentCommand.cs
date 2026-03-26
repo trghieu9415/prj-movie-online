@@ -1,5 +1,5 @@
-﻿using Domain.Enums;
-using Mv.Application.Abstractions;
+﻿using Mv.Application.Abstractions;
+using Mv.Domain.Enums;
 
 namespace Mv.Application.UseCases.Booking.CreatePayment;
 

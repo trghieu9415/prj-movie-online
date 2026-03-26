@@ -1,9 +1,9 @@
-﻿using Domain.Base;
-using Domain.Enums;
-using Domain.Events;
-using Domain.Exceptions;
+﻿using Mv.Domain.Base;
+using Mv.Domain.Enums;
+using Mv.Domain.Events;
+using Mv.Domain.Exceptions;
 
-namespace Domain.Entities;
+namespace Mv.Domain.Entities;
 
 public class Payment : BaseEntity {
   private Payment() {}

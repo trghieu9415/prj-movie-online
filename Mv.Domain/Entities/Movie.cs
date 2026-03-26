@@ -1,10 +1,9 @@
-﻿using Domain.Base;
+﻿using Mv.Domain.Base;
 
-namespace Domain.Entities;
+namespace Mv.Domain.Entities;
 
 public class Movie : BaseEntity {
-  private Movie() { }
-
+  private Movie() {}
   public string Name { get; private set; } = null!;
   public int Duration { get; private set; }
   public string PosterUrl { get; private set; } = null!;

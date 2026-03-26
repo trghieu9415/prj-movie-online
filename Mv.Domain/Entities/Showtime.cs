@@ -1,6 +1,6 @@
-﻿using Domain.Base;
+﻿using Mv.Domain.Base;
 
-namespace Domain.Entities;
+namespace Mv.Domain.Entities;
 
 public class Showtime : BaseEntity {
   private Showtime() {}

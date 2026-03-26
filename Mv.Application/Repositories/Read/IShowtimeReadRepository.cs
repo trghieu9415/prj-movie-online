@@ -1,6 +1,6 @@
-﻿using Domain.Entities;
-using Domain.ValueObjects;
-using Mv.Application.DTOs;
+﻿using Mv.Application.DTOs;
+using Mv.Domain.Entities;
+using Mv.Domain.ValueObjects;
 
 namespace Mv.Application.Repositories.Read;
 

@@ -1,7 +1,7 @@
-﻿using Domain.Base;
-using Domain.Exceptions;
+﻿using Mv.Domain.Base;
+using Mv.Domain.Exceptions;
 
-namespace Domain.Entities;
+namespace Mv.Domain.Entities;
 
 public class Auditorium : BaseEntity {
   private readonly List<Seat> _seats = [];

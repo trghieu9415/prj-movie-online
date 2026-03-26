@@ -1,8 +1,8 @@
-﻿using Domain.Events;
-using MassTransit;
+﻿using MassTransit;
 using Mv.Application.Constants;
 using Mv.Application.Ports.Realtime;
 using Mv.Application.UseCases.System.ExpireOrder;
+using Mv.Domain.Events;
 
 namespace Mv.Worker.Consumers.Event;
 
