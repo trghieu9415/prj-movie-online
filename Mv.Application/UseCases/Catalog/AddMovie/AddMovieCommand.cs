@@ -7,8 +7,16 @@ public record AddMovieCommand(string Name, int Duration, string PosterUrl) : ICo
 
 public class AddMovieValidator : AbstractValidator<AddMovieCommand> {
   public AddMovieValidator() {
-    RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
-    RuleFor(x => x.Duration).GreaterThan(0).WithMessage("Thời lượng phải lớn hơn 0");
-    RuleFor(x => x.PosterUrl).NotEmpty();
+    RuleFor(x => x.Name)
+      .NotEmpty().WithMessage("Tên phim không được để trống.")
+      .MaximumLength(200).WithMessage("Tên phim không được vượt quá 200 ký tự.");
+
+    RuleFor(x => x.Duration)
+      .GreaterThan(0).WithMessage("Thời lượng phim phải lớn hơn 0.");
+
+    RuleFor(x => x.PosterUrl)
+      .NotEmpty().WithMessage("PosterUrl không được để trống.")
+      .Must(url => Uri.TryCreate(url, UriKind.Absolute, out _))
+      .WithMessage("PosterUrl không hợp lệ.");
   }
 }

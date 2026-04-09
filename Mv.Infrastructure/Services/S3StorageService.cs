@@ -22,8 +22,11 @@ public class S3StorageService : IStorageService {
   }
 
 
-  public async Task<string> UploadAsync(string fileName, Stream content, string ext, string folder,
-    CancellationToken ct) {
+  public async Task<string> UploadAsync(
+    string fileName, Stream content,
+    string ext, string folder,
+    CancellationToken ct
+  ) {
     var key = string.IsNullOrEmpty(folder) ? $"{fileName}{ext}" : $"{folder}/{fileName}{ext}";
 
     var putRequest = new PutObjectRequest {

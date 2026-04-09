@@ -2,4 +2,4 @@
 
 namespace Mv.Application.UseCases.Realtime.HoldSeat;
 
-public record HoldSeatCommand(Guid ShowtimeId, Guid UserId, Guid SeatId) : ICommand<bool>;
+public record HoldSeatCommand(Guid ShowtimeId, Guid UserId, Guid SeatId) : ITransactional, ICommand<bool>;

@@ -2,4 +2,4 @@
 
 namespace Mv.Application.UseCases.System.ExpireOrder;
 
-public record ExpireOrderCommand(Guid Id) : ICommand<bool>;
+public record ExpireOrderCommand(Guid Id) : ITransactional, ICommand<bool>;

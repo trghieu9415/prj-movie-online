@@ -7,8 +7,6 @@ using Mv.Domain.Events;
 namespace Mv.Worker.Consumers.Event;
 
 public class OrderPlacedConsumer(
-  IShowtimeNotifier showtimeNotifier,
-  IMessageScheduler messageScheduler,
   IBackgroundTaskQueue taskQueue
 ) : IConsumer<OrderPlacedEvent> {
   public async Task Consume(ConsumeContext<OrderPlacedEvent> context) {

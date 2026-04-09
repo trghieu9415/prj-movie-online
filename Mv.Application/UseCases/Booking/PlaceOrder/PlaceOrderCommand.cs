@@ -13,7 +13,18 @@ public record PlaceOrderCommand(
 
 public class PlaceOrderValidator : AbstractValidator<PlaceOrderCommand> {
   public PlaceOrderValidator() {
-    RuleFor(x => x.ShowtimeId).NotEmpty();
-    RuleFor(x => x.SeatIds).NotEmpty().WithMessage("Phải chọn ít nhất một ghế");
+    RuleFor(x => x.ShowtimeId)
+      .NotEmpty().WithMessage("ShowtimeId không hợp lệ.");
+
+    RuleFor(x => x.SeatIds)
+      .NotNull().WithMessage("Danh sách ghế không được null.")
+      .NotEmpty().WithMessage("Phải chọn ít nhất 1 ghế.");
+
+    RuleForEach(x => x.SeatIds)
+      .NotEmpty().WithMessage("SeatId không hợp lệ.");
+
+    RuleFor(x => x.SeatIds)
+      .Must(ids => ids.Distinct().Count() == ids.Count)
+      .WithMessage("Danh sách ghế không được chứa phần tử trùng.");
   }
 }
