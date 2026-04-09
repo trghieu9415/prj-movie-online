@@ -2,9 +2,9 @@
 using MediatR;
 using Mv.Application.UseCases.System.ExpireOrder;
 
-namespace Mv.Worker.Consumers.Command;
+namespace Mv.Worker.Consumers;
 
-public class ExpireOrderConsumer(
+public class CommandConsumer(
   IMediator mediator
 ) : IConsumer<ExpireOrderCommand> {
   public async Task Consume(ConsumeContext<ExpireOrderCommand> context) {

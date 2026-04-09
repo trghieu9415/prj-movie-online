@@ -28,7 +28,6 @@ public static class JobRegistration {
   ) where TJob : IJob {
     var jobKey = new JobKey(typeof(TJob).Name);
     q.AddJob<TJob>(opts => opts.WithIdentity(jobKey).WithDescription(description));
-
     q.AddTrigger(opts => opts
       .ForJob(jobKey)
       .WithIdentity($"{typeof(TJob).Name}-Trigger")
@@ -57,7 +56,6 @@ public static class JobRegistration {
   ) where TJob : IJob {
     var jobKey = new JobKey(typeof(TJob).Name);
     q.AddJob<TJob>(opts => opts.WithIdentity(jobKey).WithDescription(description));
-
     q.AddTrigger(opts => opts
       .ForJob(jobKey)
       .WithIdentity($"{typeof(TJob).Name}-Trigger")

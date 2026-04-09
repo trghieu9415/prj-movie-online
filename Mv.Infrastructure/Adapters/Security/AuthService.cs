@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Mv.Application.Exceptions;
 using Mv.Application.Models;
+using Mv.Application.Ports.Messaging;
 using Mv.Application.Ports.Security;
 using Mv.Infrastructure.Persistence.Identity;
 using Mv.Infrastructure.Services.Abstractions;
@@ -14,7 +15,7 @@ namespace Mv.Infrastructure.Adapters.Security;
 public class AuthService(
   UserManager<AppUser> userManager,
   IJwtService jwtService,
-  IEmailService emailService,
+  IBackgroundTaskQueue taskQueue,
   ICacheService cache
 ) : IAuthService {
   public async Task<AuthTokens> LoginAsync(string email, string password, UserRole role, CancellationToken ct) {
@@ -144,7 +145,9 @@ public class AuthService(
 
     var token = await userManager.GeneratePasswordResetTokenAsync(user);
     var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-    await emailService.SendResetPasswordEmailAsync(user.Email!, encodedToken, ct);
+    await taskQueue.QueueAsync<IEmailService>((eS, ctx) =>
+      eS.SendResetPasswordEmailAsync(user.Email!, encodedToken, ctx)
+    );
   }
 
   public async Task ResetPasswordAsync(string email, string token, string newPassword, CancellationToken ct) {

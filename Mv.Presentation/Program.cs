@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Mv.Infrastructure;
 using Mv.Infrastructure.Seeding;
 using Mv.Presentation.Extensions;
@@ -14,9 +13,9 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Configuration.AddJsonFile("secrets.json", true, true);
 
 // --- Worker ---
-if (!args.Contains("--seeding") && !EF.IsDesignTime) {
-  builder.Services.AddWorker(builder.Configuration);
-}
+// if (!args.Contains("--seeding") && !EF.IsDesignTime) {
+builder.Services.AddWorker(builder.Configuration);
+// }
 
 // --- Presentation Extension ---
 builder.Services.AddJwtAuthentication(builder.Configuration);

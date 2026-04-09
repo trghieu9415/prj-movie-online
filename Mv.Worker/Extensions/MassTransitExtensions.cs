@@ -1,6 +1,6 @@
 ﻿using MassTransit;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Mv.Application.Ports.Messaging;
 using Mv.Infrastructure.Configs.Options;
 using Mv.Infrastructure.Persistence;
@@ -9,7 +9,7 @@ using Mv.Worker.Adapters.Messaging;
 namespace Mv.Worker.Extensions;
 
 public static class MassTransitExtensions {
-  public static IServiceCollection AddCustomMassTransit(this IServiceCollection services) {
+  public static IServiceCollection AddCustomMassTransit(this IServiceCollection services, IConfiguration config) {
     services.AddMassTransit(x => {
       x.AddConsumers(typeof(WorkerConfiguration).Assembly);
 
@@ -17,13 +17,14 @@ public static class MassTransitExtensions {
       x.AddPublishMessageScheduler();
 
       x.AddEntityFrameworkOutbox<AppDbContext>(o => {
+        o.QueryDelay = TimeSpan.FromSeconds(5);
         o.UsePostgres();
         o.UseBusOutbox();
         o.DuplicateDetectionWindow = TimeSpan.FromMinutes(30);
       });
 
       x.UsingRabbitMq((context, cfg) => {
-        var options = context.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
+        var options = config.GetSection(RabbitMqOptions.SectionName).Get<RabbitMqOptions>()!;
 
         cfg.Host(options.Host, options.VirtualHost, h => {
           h.Username(options.Username);

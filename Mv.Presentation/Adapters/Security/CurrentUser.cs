@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Mv.Application.Exceptions;
 using Mv.Application.Models;
 using Mv.Application.Ports.Security;
 
@@ -10,12 +11,11 @@ public class CurrentUser : ICurrentUser {
     var id = user?.FindFirstValue(ClaimTypes.NameIdentifier);
 
     if (id != null) {
-
       Id = Guid.Parse(id);
       FullName = user?.Identity?.Name ?? "Guest";
       Role = user?.FindFirstValue(ClaimTypes.Role) == nameof(UserRole.Admin) ? UserRole.Admin : UserRole.Customer;
     } else {
-      Id = Guid.Empty;
+      throw new WorkflowException("Token không hợp lệ", 401);
     }
   }
 
