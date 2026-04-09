@@ -11,18 +11,18 @@ public class Order : BaseEntity {
   private Order() {}
   public Guid CustomerId { get; private set; }
   public string CustomerName { get; private set; } = null!;
+  public string CustomerEmail { get; private set; } = null!;
   public Guid ShowtimeId { get; private set; }
   public string AuditoriumName { get; private set; } = null!;
 
   public MovieSnapshot Movie { get; private set; } = null!;
-
-
   public OrderStatus Status { get; private set; } = OrderStatus.Pending;
   public decimal TotalPrice { get; private set; }
   public IReadOnlyCollection<Ticket> Tickets => _tickets.AsReadOnly();
 
   public static Order Create(
     Guid customerId, string customerName,
+    string customerEmail,
     Guid showtimeId, string auditoriumName,
     MovieSnapshot movie,
     ICollection<SeatSnapshot> seatSnapshots
@@ -30,6 +30,7 @@ public class Order : BaseEntity {
     var order = new Order {
       CustomerId = customerId,
       CustomerName = customerName,
+      CustomerEmail = customerEmail,
       ShowtimeId = showtimeId,
       AuditoriumName = auditoriumName,
       Movie = movie
@@ -52,7 +53,7 @@ public class Order : BaseEntity {
 
     Status = OrderStatus.Confirmed;
     AddDomainEvent(new OrderCompletedEvent(
-      Id, CustomerId, ShowtimeId, Tickets.Select(x => x.SeatSnapshot.SeatId).ToList()
+      Id, CustomerId, CustomerEmail, CustomerName, ShowtimeId, Tickets.Select(x => x.SeatSnapshot.SeatId).ToList()
     ));
   }
 

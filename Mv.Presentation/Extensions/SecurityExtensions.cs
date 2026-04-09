@@ -8,13 +8,15 @@ using Mv.Presentation.Adapters.Security;
 namespace Mv.Presentation.Extensions;
 
 public static class SecurityExtensions {
-  public static IServiceCollection AddJwtAuthentication(this IServiceCollection services,
-    IConfiguration configuration) {
+  public static IServiceCollection AddJwtAuthentication(
+    this IServiceCollection services,
+    IConfiguration config
+  ) {
     services.AddScoped<ICurrentUser, CurrentUser>();
 
     services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
       .AddJwtBearer(options => {
-        var jwtOptions = services.BuildServiceProvider().GetRequiredService<JwtOptions>();
+        var jwtOptions = config.GetSection(JwtOptions.SectionName).Get<JwtOptions>()!;
         options.TokenValidationParameters = JwtService.GetValidationParameters(jwtOptions);
         options.Events = GetEvents();
       });

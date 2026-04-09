@@ -11,11 +11,13 @@ public class EmailService(
   EmailOptions options,
   ILogger<EmailService> logger
 ) : IEmailService {
-  public async Task SendOrderConfirmationEmailAsync(string email, string orderId, CancellationToken ct = default) {
+  public async Task SendOrderConfirmationEmailAsync(string email, string customerName, string orderId,
+    CancellationToken ct = default) {
     var subject = $"[Movie Online] Xác nhận đơn hàng #{orderId}";
 
     var placeholders = new Dictionary<string, string> {
-      { "OrderId", orderId }
+      { "OrderId", orderId },
+      { "CustomerName", customerName }
     };
 
     var body = await GetEmailTemplateAsync("OrderConfirmation.html", placeholders);

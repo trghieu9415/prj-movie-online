@@ -13,6 +13,7 @@ public class CurrentUser : ICurrentUser {
     if (id != null) {
       Id = Guid.Parse(id);
       FullName = user?.Identity?.Name ?? "Guest";
+      Email = user?.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
       Role = user?.FindFirstValue(ClaimTypes.Role) == nameof(UserRole.Admin) ? UserRole.Admin : UserRole.Customer;
     } else {
       throw new WorkflowException("Token không hợp lệ", 401);
@@ -20,6 +21,7 @@ public class CurrentUser : ICurrentUser {
   }
 
   public Guid Id { get; init; }
-  public string FullName { get; init; } = "Guest";
+  public string FullName { get; init; }
+  public string Email { get; init; }
   public UserRole Role { get; init; }
 }

@@ -14,6 +14,7 @@ public class PlanCanceledConsumer(
       CacheTags.CurrentPlan,
       context.CancellationToken
     );
+
     if (cachedPlan != null) {
       await cacheService.RemoveAsync(CacheTags.CurrentPlan, context.CancellationToken);
     }

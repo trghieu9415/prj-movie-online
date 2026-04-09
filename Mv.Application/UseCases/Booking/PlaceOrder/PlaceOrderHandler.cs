@@ -33,6 +33,7 @@ public class PlaceOrderHandler(
     var order = Order.Create(
       currentUser.Id,
       currentUser.FullName,
+      currentUser.Email,
       showtime.Id,
       auditoriumName,
       movie,

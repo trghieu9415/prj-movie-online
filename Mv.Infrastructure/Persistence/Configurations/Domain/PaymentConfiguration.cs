@@ -14,7 +14,10 @@ public class PaymentConfiguration : BaseConfiguration<Payment> {
       .IsRequired()
       .OnDelete(DeleteBehavior.Cascade);
 
-    builder.Property(p => p.Amount).HasColumnType("decimal(18,2)");
+    builder.Property(p => p.Amount).HasPrecision(18, 2);
+    builder.Property(p => p.PaymentUrl).HasColumnType("text");
+    ;
+
 
     // Enums to String
     builder.Property(p => p.Method).HasConversion<string>().HasMaxLength(50);

@@ -5,8 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Mv.Application.Ports.Cache;
 using Mv.Application.Ports.Concurrency;
+using Mv.Application.Ports.State;
 using Mv.Infrastructure.Adapters.Cache;
 using Mv.Infrastructure.Adapters.Concurrency;
+using Mv.Infrastructure.Adapters.State;
 using Mv.Infrastructure.Configs.Options;
 using Mv.Infrastructure.Services;
 using Mv.Infrastructure.Services.Abstractions;
@@ -39,7 +41,11 @@ public static class DistributedExtensions {
       var connection = serviceProvider.GetRequiredService<IConnectionMultiplexer>();
       return new RedisDistributedSynchronizationProvider(connection.GetDatabase());
     });
+
+
     services.AddScoped<IDistributedLockService, RedisLockService>();
+    services.AddScoped<ISeatStateStore, RedisSeatStateStore>();
+
 
     return services;
   }

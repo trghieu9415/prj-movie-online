@@ -9,6 +9,7 @@ public class OrderConfiguration : BaseConfiguration<Order> {
     base.Configure(builder);
 
     builder.Property(o => o.CustomerName).IsRequired().HasMaxLength(255);
+    builder.Property(o => o.CustomerEmail).IsRequired().HasMaxLength(255);
     builder.Property(o => o.AuditoriumName).IsRequired().HasMaxLength(150);
 
     // Store Enum as string

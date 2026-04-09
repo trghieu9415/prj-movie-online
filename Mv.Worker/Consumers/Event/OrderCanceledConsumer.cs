@@ -1,21 +1,18 @@
 ﻿using MassTransit;
-using Mv.Application.Constants;
+using Mv.Application.Ports.Messaging;
 using Mv.Application.Ports.Realtime;
 using Mv.Domain.Events;
 
 namespace Mv.Worker.Consumers.Event;
 
 public class OrderCanceledConsumer(
-  IShowtimeNotifier showtimeNotifier
+  IBackgroundTaskQueue taskQueue
 ) : IConsumer<OrderCanceledEvent> {
   public async Task Consume(ConsumeContext<OrderCanceledEvent> context) {
     var msg = context.Message;
-    await showtimeNotifier.SendToShowtimeGroup(
-      msg.ShowtimeId,
-      ClientMethods.SeatReleased,
-      new {
-        msg.SeatIds
-      }
+
+    await taskQueue.QueueAsync<IShowtimeNotifier>((sN, ctx) =>
+      sN.NotifySeatReleasedAsync(msg.ShowtimeId, msg.SeatIds, ctx)
     );
   }
 }

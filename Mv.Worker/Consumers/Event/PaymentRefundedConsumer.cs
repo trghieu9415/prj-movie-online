@@ -1,16 +1,19 @@
 ﻿using MassTransit;
 using MediatR;
+using Mv.Application.Ports.Messaging;
 using Mv.Application.UseCases.System.RefundOrder;
 using Mv.Domain.Events;
 
 namespace Mv.Worker.Consumers.Event;
 
 public class PaymentRefundedConsumer(
-  IMediator mediator
+  IBackgroundTaskQueue taskQueue
 ) : IConsumer<PaymentRefundedEvent> {
   public async Task Consume(ConsumeContext<PaymentRefundedEvent> context) {
     var msg = context.Message;
-    var command = new RefundOrderCommand(msg.OrderId);
-    await mediator.Send(command, context.CancellationToken);
+
+    await taskQueue.QueueAsync<IMediator>((m, ctx) =>
+      m.Send(new RefundOrderCommand(msg.OrderId), ctx)
+    );
   }
 }
