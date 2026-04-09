@@ -1,0 +1,833 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Movie Online - Realtime Booking</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #1e293b;
+      --text: #f8fafc;
+      --primary: #3b82f6;
+      --danger: #ef4444;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --seat-free: #334155;
+      --seat-selected: #3b82f6;
+      --seat-held: #f59e0b;
+      --seat-booked: #ef4444;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--panel);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin-top: 0;
+    }
+
+    input,
+    button,
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      border: none;
+      box-sizing: border-box;
+    }
+
+    input,
+    textarea {
+      background: #334155;
+      color: white;
+      font-family: monospace;
+      resize: vertical;
+    }
+
+    button {
+      background: var(--primary);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      opacity: 0.8;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    button.btn-paypal {
+      background: #00457c;
+    }
+
+    button.btn-stripe {
+      background: #635bff;
+    }
+
+    .movie-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .movie-card {
+      background: #334155;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .showtime-btn {
+      background: #475569;
+      display: inline-block;
+      padding: 5px 10px;
+      margin: 5px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .showtime-btn:hover {
+      background: var(--primary);
+    }
+
+    .screen {
+      background: white;
+      color: black;
+      text-align: center;
+      padding: 5px;
+      margin-bottom: 30px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+
+    .seat-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .seat {
+      width: 40px;
+      height: 40px;
+      border-radius: 5px;
+      background: var(--seat-free);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+
+    .seat.selected {
+      background: var(--seat-selected);
+    }
+
+    .seat.held {
+      background: var(--seat-held);
+      cursor: not-allowed;
+      opacity: 0.8;
+    }
+
+    .seat.booked {
+      background: var(--seat-booked);
+      cursor: not-allowed;
+    }
+
+    .seat:hover:not(.booked):not(.held) {
+      transform: scale(1.1);
+    }
+
+    .seat-legend {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .legend-box {
+      width: 15px;
+      height: 15px;
+      border-radius: 3px;
+    }
+
+    .pending-orders {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #334155;
+    }
+
+    .order-card {
+      background: #0f172a;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 4px solid var(--warning);
+    }
+
+    .order-info p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal {
+      background: var(--panel);
+      padding: 30px;
+      border-radius: 10px;
+      width: 450px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .timer-box {
+      font-size: 32px;
+      font-weight: bold;
+      color: var(--success);
+      margin: 15px 0;
+      font-family: monospace;
+    }
+
+    /* Ẩn bước xác nhận lúc đầu */
+    #payment-verify-step {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div
+    style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-bottom: 1px solid #334155;
+          padding-bottom: 10px;
+          margin-bottom: 20px;
+        "
+  >
+    <h2>🍿 Movie Online</h2>
+    <div id="user-info" style="display: none">
+          <span
+            id="user-name"
+            style="margin-right: 15px; color: #10b981"
+          ></span>
+      <button
+        onclick="logout()"
+        style="width: auto; padding: 5px 15px; background: var(--danger)"
+      >
+        Đăng xuất
+      </button>
+    </div>
+  </div>
+
+  <div class="page active" id="page-login">
+    <h3>Đăng Nhập Khách Hàng</h3>
+    <input
+      id="login-email"
+      placeholder="Email"
+      type="email"
+      value="user.num1@gmail.com"
+    />
+    <input
+      id="login-password"
+      placeholder="Mật khẩu"
+      type="password"
+      value="111qqq..."
+    />
+    <button onclick="login()">Đăng Nhập</button>
+    <p style="text-align: center; font-size: 14px">
+      Chưa có tài khoản?
+      <a
+        href="#"
+        onclick="switchPage('page-register')"
+        style="color: var(--primary)"
+      >Đăng ký ngay</a
+      >
+    </p>
+  </div>
+
+  <div class="page" id="page-register">
+    <h3>Đăng Ký Tài Khoản</h3>
+    <input id="reg-name" placeholder="Họ và tên" type="text"/>
+    <input id="reg-email" placeholder="Email" type="email"/>
+    <input id="reg-password" placeholder="Mật khẩu" type="password"/>
+    <button onclick="register()">Đăng Ký</button>
+    <button onclick="switchPage('page-login')" style="background: #475569">
+      Quay lại
+    </button>
+  </div>
+
+  <div class="page" id="page-movies">
+    <h3>Phim đang chiếu hôm nay</h3>
+    <div class="movie-list" id="movie-list-container"></div>
+  </div>
+
+  <div class="page" id="page-seats">
+    <button
+      onclick="leaveShowtime()"
+      style="width: auto; background: #475569; margin-bottom: 20px"
+    >
+      &larr; Đổi phim
+    </button>
+    <div style="display: flex; justify-content: space-between">
+      <h3 id="seat-movie-title">Phòng chiếu</h3>
+      <span id="online-count" style="color: #10b981"
+      >Đang xem: 1 người</span
+      >
+    </div>
+
+    <div class="screen">MÀN HÌNH</div>
+    <div id="seat-map"></div>
+
+    <div class="seat-legend">
+      <div class="legend-item">
+        <div class="legend-box" style="background: var(--seat-free)"></div>
+        Trống
+      </div>
+      <div class="legend-item">
+        <div
+          class="legend-box"
+          style="background: var(--seat-selected)"
+        ></div>
+        Đang chọn
+      </div>
+      <div class="legend-item">
+        <div class="legend-box" style="background: var(--seat-held)"></div>
+        Đang giữ
+      </div>
+      <div class="legend-item">
+        <div
+          class="legend-box"
+          style="background: var(--seat-booked)"
+        ></div>
+        Đã bán
+      </div>
+    </div>
+
+    <div style="margin-top: 30px; text-align: center">
+      <p>Ghế đã chọn: <span id="selected-seats-text">Chưa chọn</span></p>
+      <button
+        disabled
+        id="btn-book"
+        onclick="placeOrder()"
+        style="background: var(--success)"
+      >
+        Tạo Đơn & Đặt Vé
+      </button>
+    </div>
+
+    <div class="pending-orders">
+      <h3 style="color: var(--warning)">
+        ⏳ Đơn hàng chờ thanh toán của bạn
+      </h3>
+      <div id="pending-orders-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL THANH TOÁN -->
+<div class="modal-overlay" id="modal-payment">
+  <div class="modal">
+    <h3 style="margin-bottom: 5px">Thanh Toán Đơn Hàng</h3>
+    <p style="font-size: 13px; color: #94a3b8; margin-top: 0">
+      Mã đơn: <span id="order-id-display"></span>
+    </p>
+
+    <div id="countdown-container">
+      <div>Thời gian giữ vé còn lại:</div>
+      <div class="timer-box" id="countdown-timer">15:00</div>
+    </div>
+
+    <!-- Bước 1: Chọn Phương Thức -->
+    <div id="payment-methods-step">
+      <button class="btn-stripe btn-pay" onclick="processPayment('Stripe')">
+        1. Mở Cổng Stripe
+      </button>
+      <button class="btn-paypal btn-pay" onclick="processPayment('Paypal')">
+        1. Mở Cổng PayPal
+      </button>
+      <button
+        onclick="closeModal()"
+        style="background: #475569; margin-top: 10px"
+      >
+        Để sau (Hủy đóng)
+      </button>
+    </div>
+
+    <!-- Bước 2: Dán JSON Xác Nhận -->
+    <div id="payment-verify-step">
+      <h4 style="color: var(--success); margin-bottom: 5px">
+        2. Tab thanh toán đã mở!
+      </h4>
+      <p style="font-size: 13px; color: #94a3b8; margin-bottom: 15px">
+        Dán chuỗi JSON mô phỏng (Webhook/Return URL) vào dưới đây để báo cho
+        Backend biết bạn đã thanh toán thành công.
+      </p>
+
+      <textarea
+        id="json-payload"
+        placeholder='Stripe VD: { "session_id": "cs_test_..." }&#10;Paypal VD: { "token": "...", "PayerID": "..." }'
+        rows="5"
+      ></textarea>
+
+      <button onclick="verifyPayment()" style="background: var(--primary)">
+        3. Gửi Xác Nhận Thanh Toán
+      </button>
+      <button
+        onclick="closeModal()"
+        style="background: #475569; margin-top: 10px"
+      >
+        Hủy bỏ
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API_BASE = "http://localhost:5202/api/user";
+  const HUB_URL = "http://localhost:5202/hubs/showtime";
+
+  let token = localStorage.getItem("token");
+  let hubConnection = null;
+
+  let currentShowtimeId = null;
+  let currentAuditoriumId = null;
+  let mySelectedSeats = [];
+  let otherHeldSeats = [];
+  let bookedSeats = [];
+  let seatsData = [];
+
+  let currentOrderId = null;
+  let currentPaymentId = null; // Lưu paymentId để gọi hàm verify
+  let countdownInterval = null;
+
+  async function fetchApi(endpoint, method = "GET", body = null) {
+    const headers = {"Content-Type": "application/json"};
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : null,
+    });
+    const data = await res.json();
+    if (res.status === 401) {
+      logout();
+      throw new Error("Phiên hết hạn");
+    }
+    if (!res.ok) throw new Error(data.error || "Lỗi API");
+    return data.data;
+  }
+
+  function switchPage(pageId) {
+    document
+      .querySelectorAll(".page")
+      .forEach((p) => p.classList.remove("active"));
+    document.getElementById(pageId).classList.add("active");
+  }
+
+  window.onload = () => {
+    if (token) {
+      document.getElementById("user-info").style.display = "block";
+      loadMovies();
+    } else {
+      switchPage("page-login");
+    }
+  };
+
+  async function login() {
+    try {
+      const data = await fetchApi("/auth/login", "POST", {
+        email: document.getElementById("login-email").value,
+        password: document.getElementById("login-password").value,
+      });
+      token = data.authTokens.access.token;
+      localStorage.setItem("token", token);
+      document.getElementById("user-info").style.display = "block";
+      loadMovies();
+    } catch (e) {
+      alert(e.message);
+    }
+  }
+
+  function logout() {
+    localStorage.removeItem("token");
+    token = null;
+    document.getElementById("user-info").style.display = "none";
+    if (hubConnection) hubConnection.stop();
+    switchPage("page-login");
+  }
+
+  async function loadMovies() {
+    switchPage("page-movies");
+    try {
+      const plan = await fetchApi("/plan/current");
+      const container = document.getElementById("movie-list-container");
+      container.innerHTML = "";
+      plan.plan.listings.forEach((listing) => {
+        if (listing.showtimes.length === 0) return;
+        let html = `<div class="movie-card"><h4>${listing.movie.name}</h4><div>`;
+        listing.showtimes.forEach((st) => {
+          html += `<div class="showtime-btn" onclick="openShowtime('${st.id}', '${st.auditoriumId}')">${st.startAt.substring(0, 5)}</div>`;
+        });
+        html += `</div></div>`;
+        container.innerHTML += html;
+      });
+    } catch (e) {
+    }
+  }
+
+  async function openShowtime(showtimeId, auditoriumId) {
+    currentShowtimeId = showtimeId;
+    currentAuditoriumId = auditoriumId;
+    mySelectedSeats = [];
+    otherHeldSeats = [];
+    bookedSeats = [];
+    switchPage("page-seats");
+    try {
+      const aud = await fetchApi(`/auditorium/${auditoriumId}`);
+      seatsData = aud.auditorium.seats;
+      renderSeatGrid();
+      connectSignalR();
+      loadPendingOrders();
+    } catch (e) {
+      alert(e.message);
+    }
+  }
+
+  async function loadPendingOrders() {
+    try {
+      const response = await fetchApi("/order/history?page=1&pageSize=50");
+      const pendingOrders = (response.orders || []).filter(
+        (o) => o.status === "Pending",
+      );
+      const listDiv = document.getElementById("pending-orders-list");
+      if (pendingOrders.length === 0) {
+        listDiv.innerHTML = `<p style="color: #94a3b8; font-size: 14px;">Không có đơn hàng chờ.</p>`;
+        return;
+      }
+      listDiv.innerHTML = "";
+      pendingOrders.forEach((order) => {
+        const seats = order.tickets
+          .map((t) => `${t.seatSnapshot.row}${t.seatSnapshot.number}`)
+          .join(", ");
+        const orderJson = encodeURIComponent(JSON.stringify(order));
+        listDiv.innerHTML += `
+                    <div class="order-card">
+                        <div class="order-info"><b style="color: white;">Phim: ${order.movie.name}</b><p>Phòng: ${order.auditoriumName} | Ghế: ${seats}</p></div>
+                        <button onclick="openPaymentModal('${orderJson}')" style="width: auto; background: var(--primary);">Thanh Toán</button>
+                    </div>`;
+      });
+    } catch (e) {
+    }
+  }
+
+  function renderSeatGrid() {
+    const map = document.getElementById("seat-map");
+    map.innerHTML = "";
+    const rows = {};
+    seatsData.forEach((s) => {
+      if (!rows[s.row]) rows[s.row] = [];
+      rows[s.row].push(s);
+    });
+    Object.keys(rows)
+      .sort()
+      .forEach((r) => {
+        let rowHtml = `<div class="seat-row"><div style="width: 20px; line-height: 40px; text-align: center;">${r}</div>`;
+        rows[r]
+          .sort((a, b) => a.number - b.number)
+          .forEach((seat) => {
+            rowHtml += `<div class="seat" id="seat-${seat.id}" onclick="toggleSeat('${seat.id}')">${seat.number}</div>`;
+          });
+        rowHtml += `</div>`;
+        map.innerHTML += rowHtml;
+      });
+  }
+
+  async function connectSignalR() {
+    if (hubConnection) await hubConnection.stop();
+    hubConnection = new signalR.HubConnectionBuilder()
+      .withUrl(HUB_URL, {accessTokenFactory: () => token})
+      .build();
+    hubConnection.on("SeatStatuses", (status) => {
+      bookedSeats = status.bookedSeats || [];
+      otherHeldSeats = (status.heldSeats || []).filter(
+        (id) => !mySelectedSeats.includes(id),
+      );
+      updateSeatUI();
+    });
+    hubConnection.on("SeatHeld", (id) => {
+      if (!mySelectedSeats.includes(id)) {
+        otherHeldSeats.push(id);
+        updateSeatUI();
+      }
+    });
+    hubConnection.on("SeatReleased", (ids) => {
+      ids.forEach((id) => {
+        otherHeldSeats = otherHeldSeats.filter((s) => s !== id);
+      });
+      updateSeatUI();
+    });
+    hubConnection.on("SeatSold", (ids) => {
+      ids.forEach((id) => {
+        if (!bookedSeats.includes(id)) bookedSeats.push(id);
+        otherHeldSeats = otherHeldSeats.filter((s) => s !== id);
+        mySelectedSeats = mySelectedSeats.filter((s) => s !== id);
+      });
+      updateSeatUI();
+      loadPendingOrders();
+    });
+    await hubConnection.start();
+    await hubConnection.invoke("JoinShowtimeGroup", currentShowtimeId);
+  }
+
+  function toggleSeat(seatId) {
+    if (bookedSeats.includes(seatId) || otherHeldSeats.includes(seatId))
+      return;
+    const idx = mySelectedSeats.indexOf(seatId);
+    if (idx > -1) {
+      mySelectedSeats.splice(idx, 1);
+      hubConnection.invoke("ReleaseSeat", seatId);
+    } else {
+      mySelectedSeats.push(seatId);
+      hubConnection.invoke("HoldSeat", seatId);
+    }
+    updateSeatUI();
+  }
+
+  function updateSeatUI() {
+    document.querySelectorAll(".seat").forEach((el) => {
+      el.className = "seat";
+      const sId = el.id.replace("seat-", "");
+      if (bookedSeats.includes(sId)) el.classList.add("booked");
+      else if (mySelectedSeats.includes(sId)) el.classList.add("selected");
+      else if (otherHeldSeats.includes(sId)) el.classList.add("held");
+    });
+    const txt = mySelectedSeats
+      .map((id) => {
+        const s = seatsData.find((x) => x.id === id);
+        return s ? `${s.row}${s.number}` : "";
+      })
+      .join(", ");
+    document.getElementById("selected-seats-text").innerText =
+      txt || "Chưa chọn";
+    document.getElementById("btn-book").disabled =
+      mySelectedSeats.length === 0;
+  }
+
+  async function leaveShowtime() {
+    if (hubConnection) {
+      mySelectedSeats.forEach((id) =>
+        hubConnection.invoke("ReleaseSeat", id),
+      );
+      await hubConnection.stop();
+    }
+    loadMovies();
+  }
+
+  async function placeOrder() {
+    try {
+      const res = await fetchApi("/order", "POST", {
+        showtimeId: currentShowtimeId,
+        seatIds: mySelectedSeats,
+      });
+      const newOrderResponse = await fetchApi(`/order/${res.id}`);
+      mySelectedSeats = [];
+      updateSeatUI();
+      loadPendingOrders();
+      openPaymentModal(
+        encodeURIComponent(JSON.stringify(newOrderResponse.order)),
+      );
+    } catch (e) {
+      alert("Lỗi tạo đơn: " + e.message);
+    }
+  }
+
+  function openPaymentModal(orderJsonEncoded) {
+    const order = JSON.parse(decodeURIComponent(orderJsonEncoded));
+    currentOrderId = order.id;
+
+    // Reset View của Modal
+    document.getElementById("payment-methods-step").style.display = "block";
+    document.getElementById("payment-verify-step").style.display = "none";
+    document.getElementById("json-payload").value = "";
+
+    document.getElementById("order-id-display").innerText = order.id
+      .split("-")[0]
+      .toUpperCase();
+    document.getElementById("modal-payment").classList.add("active");
+
+    const expireAt = new Date(order.createdAt).getTime() + 15 * 60 * 1000;
+    if (countdownInterval) clearInterval(countdownInterval);
+
+    countdownInterval = setInterval(() => {
+      const distance = expireAt - new Date().getTime();
+      const timerBox = document.getElementById("countdown-timer");
+      const payBtns = document.querySelectorAll(".btn-pay");
+      if (distance <= 0) {
+        clearInterval(countdownInterval);
+        timerBox.innerText = "00:00 (Hết hạn)";
+        timerBox.style.color = "var(--danger)";
+        payBtns.forEach((btn) => (btn.disabled = true));
+      } else {
+        const mins = Math.floor(
+          (distance % (1000 * 60 * 60)) / (1000 * 60),
+        );
+        const secs = Math.floor((distance % (1000 * 60)) / 1000);
+        timerBox.innerText = `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+        timerBox.style.color =
+          distance < 180000 ? "var(--danger)" : "var(--success)";
+        payBtns.forEach((btn) => (btn.disabled = false));
+      }
+    }, 1000);
+  }
+
+  function closeModal() {
+    document.getElementById("modal-payment").classList.remove("active");
+    if (countdownInterval) clearInterval(countdownInterval);
+  }
+
+  // --- BƯỚC 1: MỞ CỔNG THANH TOÁN ---
+  async function processPayment(method) {
+    document
+      .querySelectorAll(".btn-pay")
+      .forEach((b) => (b.disabled = true));
+    const newWindow = window.open("about:blank", "_blank"); // Mở tab trắng ngay lập tức
+
+    try {
+      const urlData = await fetchApi("/payment/create", "POST", {
+        orderId: currentOrderId,
+        method: method,
+      });
+
+      if (urlData && urlData.paymentUrl) {
+        newWindow.location.href = urlData.paymentUrl; // Chuyển tab sang trang Gateway
+        currentPaymentId = urlData.paymentId; // Lưu lại ID giao dịch
+
+        // Dừng đếm ngược và chuyển Modal sang màn hình xác nhận JSON
+        if (countdownInterval) clearInterval(countdownInterval);
+        document.getElementById("countdown-timer").innerText =
+          "Chờ phản hồi...";
+        document.getElementById("payment-methods-step").style.display =
+          "none";
+        document.getElementById("payment-verify-step").style.display =
+          "block";
+      }
+    } catch (e) {
+      newWindow.close();
+      alert("Lỗi kết nối Cổng thanh toán: " + e.message);
+      document
+        .querySelectorAll(".btn-pay")
+        .forEach((b) => (b.disabled = false));
+    }
+  }
+
+  // --- BƯỚC 2: XÁC NHẬN GIAO DỊCH BẰNG JSON ---
+  async function verifyPayment() {
+    const payloadStr = document.getElementById("json-payload").value.trim();
+    let payloadObj = null;
+
+    if (!payloadStr) {
+      alert("Vui lòng điền JSON Payload!");
+      return;
+    }
+
+    try {
+      payloadObj = JSON.parse(payloadStr);
+    } catch (e) {
+      alert("Chuỗi bạn nhập không phải là JSON hợp lệ!");
+      return;
+    }
+
+    try {
+      // Gửi xuống API POST /payment/{id}/verify
+      const isSuccess = await fetchApi(
+        `/payment/${currentPaymentId}/verify`,
+        "POST",
+        {
+          id: currentPaymentId,
+          payload: payloadObj,
+        },
+      );
+
+      if (isSuccess) {
+        alert("🎉 Tuyệt vời! Thanh toán thành công.");
+        closeModal();
+        loadPendingOrders(); // Load lại danh sách đơn để thấy đơn đã biến mất
+      } else {
+        alert("❌ Lỗi: Xác nhận thất bại. Hãy kiểm tra lại Payload.");
+      }
+    } catch (e) {
+      alert("Lỗi trong quá trình xác nhận: " + e.message);
+    }
+  }
+</script>
+</body>
+</html>
