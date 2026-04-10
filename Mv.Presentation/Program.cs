@@ -9,8 +9,8 @@ using Swashbuckle.AspNetCore.SwaggerUI;
 var builder = WebApplication.CreateBuilder(args);
 
 // --- Infrastructure ---
-builder.Services.AddInfrastructure(builder.Configuration);
 builder.Configuration.AddJsonFile("secrets.json", true, true);
+builder.Services.AddInfrastructure(builder.Configuration);
 
 // --- Worker ---
 // if (!args.Contains("--seeding") && !EF.IsDesignTime) {
