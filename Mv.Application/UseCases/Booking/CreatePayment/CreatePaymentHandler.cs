@@ -24,7 +24,7 @@ public class CreatePaymentHandler(
     }
 
     if (order.Status != OrderStatus.Pending) {
-      throw new WorkflowException("Chỉ có thể thanh toán đơn hàng đang ở trạng thái chờ", 429);
+      throw new WorkflowException("Chỉ có thể thanh toán đơn hàng đang ở trạng thái chờ");
     }
 
 

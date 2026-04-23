@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Mv.Application.UseCases.Scheduling.GetCurrentPlan;
 using Mv.Presentation.Response;
 
 namespace Mv.Presentation.Controllers.User;
 
+[AllowAnonymous]
 public class PlanController : UserController {
   [HttpGet("current")]
   public async Task<IActionResult> GetCurrent() {

@@ -8,7 +8,7 @@ public record PlaceOrderCommand(
   List<Guid> SeatIds
 ) : ICommand<Guid>, ILockable {
   public string LockKey => $"lock:showtime:{ShowtimeId}";
-  public TimeSpan WaitTime => TimeSpan.FromSeconds(10);
+  public TimeSpan WaitTime => TimeSpan.FromMilliseconds(100);
 }
 
 public class PlaceOrderValidator : AbstractValidator<PlaceOrderCommand> {

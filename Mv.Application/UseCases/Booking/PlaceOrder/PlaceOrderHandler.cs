@@ -40,6 +40,7 @@ public class PlaceOrderHandler(
       validSeats
     );
 
+    await Task.Delay(1000, ct);
     await orderRepository.CreateAsync(order, ct);
     return order.Id;
   }
