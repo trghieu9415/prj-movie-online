@@ -7,6 +7,7 @@ public record PaymentCompletedEvent(
   Guid PaymentId,
   Guid OrderId,
   Guid CustomerId,
+  string CustomerEmail,
   decimal Amount,
   PaymentMethod Method,
   string? TransactionId

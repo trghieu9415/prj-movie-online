@@ -14,13 +14,11 @@ public class LockBehavior<TRequest, TResponse>(
     RequestHandlerDelegate<TResponse> next,
     CancellationToken ct
   ) {
-    using var distributedLock = await lockService.AcquireLockAsync(
-      request.LockKey,
-      request.WaitTime
-    );
+    using var distributedLock = await lockService.AcquireLockAsync(request.LockKey, request.WaitTime);
+    Console.WriteLine($"Lock key: {request.LockKey} and distributed lock: {distributedLock == null}");
 
     if (distributedLock == null) {
-      throw new WorkflowException("Hệ thống đang bận xử lý yêu cầu này. Vui lòng thử lại.", 429);
+      throw new WorkflowException("Hệ thống đang bận xử lý yêu cầu này. Vui lòng thử lại.", 409);
     }
 
     return await next();

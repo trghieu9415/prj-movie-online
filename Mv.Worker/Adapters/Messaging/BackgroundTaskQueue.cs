@@ -15,15 +15,13 @@ public class BackgroundTaskQueue : IBackgroundTaskQueue {
     _queue = Channel.CreateBounded<Func<CancellationToken, IServiceProvider, ValueTask>>(options);
   }
 
-  public async ValueTask QueueAsync<T>(Expression<Func<T, CancellationToken, Task>> workItem) where T : notnull {
-    var compiledMethod = workItem.Compile();
-
+  public async ValueTask QueueAsync<T>(Func<T, CancellationToken, Task> workItem) where T : notnull {
     await _queue.Writer.WriteAsync(Wrapper);
     return;
 
     async ValueTask Wrapper(CancellationToken token, IServiceProvider sp) {
       var service = sp.GetRequiredService<T>();
-      await compiledMethod(service, token);
+      await workItem(service, token);
     }
   }
 

@@ -22,7 +22,7 @@ public class ProcessPaymentHandler(
     var (isSucceed, transactionId) = await paymentGateway.VerifyPayment(gatewayPayload, ct);
 
     if (isSucceed) {
-      payment.MarkAsSucceeded(currentUser.Id, transactionId);
+      payment.MarkAsSucceeded(currentUser.Id, currentUser.Email, transactionId);
     } else {
       payment.MarkAsFailed();
     }

@@ -20,6 +20,8 @@ public class EmailService(
       { "CustomerName", customerName }
     };
 
+    await Task.Delay(1000, ct);
+    Console.WriteLine($"Gửi email tới User có ID: {customerName} - 1s");
     var body = await GetEmailTemplateAsync("OrderConfirmation.html", placeholders);
     await SendEmailAsync(email, subject, body, ct);
   }
